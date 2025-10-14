@@ -1,8 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { ArrowUpRight, ArrowDownRight, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Stock {
   symbol: string;
@@ -20,6 +23,9 @@ interface StockGridProps {
 }
 
 export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
+  const [newSymbol, setNewSymbol] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
   const [watchlist, setWatchlist] = useState<Stock[]>([
     {
       symbol: "AAPL",
@@ -65,14 +71,86 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
     },
   ]);
 
+  const handleAddStock = () => {
+    if (!newSymbol.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a stock symbol",
+      });
+      return;
+    }
+
+    const symbol = newSymbol.toUpperCase().trim();
+    
+    if (watchlist.some(stock => stock.symbol === symbol)) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "This stock is already in your watchlist",
+      });
+      return;
+    }
+
+    const newStock: Stock = {
+      symbol,
+      name: `${symbol} Corporation`,
+      price: "$0.00",
+      change: "+0.00",
+      changePercent: "+0.00%",
+      isPositive: true,
+      data: [
+        { time: "9:30", value: 0 },
+        { time: "10:00", value: 0 },
+        { time: "10:30", value: 0 },
+        { time: "11:00", value: 0 },
+      ],
+    };
+
+    setWatchlist([...watchlist, newStock]);
+    setNewSymbol("");
+    setDialogOpen(false);
+    
+    toast({
+      title: "Success",
+      description: `Added ${symbol} to your watchlist`,
+    });
+  };
+
   return (
     <Card className="p-6 bg-gradient-to-br from-card to-card/50">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">Watchlist</h2>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Stock
-        </Button>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Stock
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Stock to Watchlist</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <label htmlFor="stock-symbol" className="text-sm font-medium">
+                  Stock Symbol
+                </label>
+                <Input
+                  id="stock-symbol"
+                  placeholder="e.g., TSLA, AMZN, NVDA"
+                  value={newSymbol}
+                  onChange={(e) => setNewSymbol(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddStock()}
+                />
+              </div>
+              <Button onClick={handleAddStock} className="w-full">
+                Add to Watchlist
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="space-y-4">
