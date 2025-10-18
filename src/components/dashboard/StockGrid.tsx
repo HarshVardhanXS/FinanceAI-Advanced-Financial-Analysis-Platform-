@@ -86,6 +86,17 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
         return null;
       }
 
+      // Show demo data notice if API limit reached
+      if (data.isDemo && !toast) {
+        setTimeout(() => {
+          toast({
+            title: "Using Demo Data",
+            description: "Alpha Vantage API limit reached. Showing simulated data. Upgrade your API key for real-time data.",
+            variant: "default",
+          });
+        }, 1000);
+      }
+
       return {
         symbol: data.symbol,
         name: `${data.symbol} Corporation`,

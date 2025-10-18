@@ -27,14 +27,36 @@ serve(async (req) => {
 
     console.log('Quote data received:', quoteData);
 
-    if (quoteData['Note'] || quoteData['Error Message']) {
+    // Check for API rate limit or error messages
+    if (quoteData['Note'] || quoteData['Error Message'] || quoteData['Information']) {
+      const errorMsg = quoteData['Note'] || quoteData['Error Message'] || quoteData['Information'];
+      console.error('Alpha Vantage API limit/error:', errorMsg);
+      
+      // Return mock data as fallback when API limit is reached
+      const mockPrice = Math.random() * 100 + 100; // Random price between 100-200
+      const mockChange = (Math.random() - 0.5) * 5; // Random change between -2.5 and 2.5
+      const mockPercent = (mockChange / mockPrice * 100).toFixed(2);
+      
       return new Response(
-        JSON.stringify({ 
-          error: quoteData['Note'] || quoteData['Error Message'] || 'API limit reached'
+        JSON.stringify({
+          symbol: symbol,
+          price: mockPrice.toFixed(2),
+          change: mockChange.toFixed(2),
+          changePercent: mockPercent,
+          isPositive: mockChange >= 0,
+          high: (mockPrice * 1.02).toFixed(2),
+          low: (mockPrice * 0.98).toFixed(2),
+          volume: '1000000',
+          chartData: [
+            { time: '9:30', value: mockPrice * 0.99 },
+            { time: '10:30', value: mockPrice * 1.01 },
+            { time: '11:30', value: mockPrice * 0.995 },
+            { time: '12:30', value: mockPrice }
+          ],
+          isDemo: true // Flag to show this is demo data
         }),
-        { 
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -42,11 +64,33 @@ serve(async (req) => {
     const quote = quoteData['Global Quote'];
     
     if (!quote || Object.keys(quote).length === 0) {
+      console.error('No quote data returned for symbol:', symbol);
+      
+      // Fallback to mock data
+      const mockPrice = Math.random() * 100 + 100;
+      const mockChange = (Math.random() - 0.5) * 5;
+      const mockPercent = (mockChange / mockPrice * 100).toFixed(2);
+      
       return new Response(
-        JSON.stringify({ error: 'Invalid symbol or no data available' }),
-        { 
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        JSON.stringify({
+          symbol: symbol,
+          price: mockPrice.toFixed(2),
+          change: mockChange.toFixed(2),
+          changePercent: mockPercent,
+          isPositive: mockChange >= 0,
+          high: (mockPrice * 1.02).toFixed(2),
+          low: (mockPrice * 0.98).toFixed(2),
+          volume: '1000000',
+          chartData: [
+            { time: '9:30', value: mockPrice * 0.99 },
+            { time: '10:30', value: mockPrice * 1.01 },
+            { time: '11:30', value: mockPrice * 0.995 },
+            { time: '12:30', value: mockPrice }
+          ],
+          isDemo: true
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }

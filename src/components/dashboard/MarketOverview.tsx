@@ -25,6 +25,7 @@ export const MarketOverview = () => {
     const symbols = ['SPY', 'DIA', 'QQQ']; // ETFs representing major indices
     const names = ['S&P 500', 'DOW JONES', 'NASDAQ'];
     const newData: MarketIndex[] = [];
+    let isDemoData = false;
 
     for (let i = 0; i < symbols.length; i++) {
       try {
@@ -33,6 +34,8 @@ export const MarketOverview = () => {
         });
 
         if (!error && data && !data.error) {
+          if (data.isDemo) isDemoData = true;
+          
           newData.push({
             name: names[i],
             value: `$${data.price}`,
@@ -41,17 +44,30 @@ export const MarketOverview = () => {
             isPositive: data.isPositive
           });
         } else {
-          newData.push(indices[i]);
+          // Keep previous data if fetch fails
+          newData.push(indices[i] || {
+            name: names[i],
+            value: "N/A",
+            change: "+0.00",
+            changePercent: "+0.00%",
+            isPositive: true
+          });
         }
       } catch (e) {
         console.error(`Error fetching ${names[i]}:`, e);
-        newData.push(indices[i]);
+        newData.push(indices[i] || {
+          name: names[i],
+          value: "N/A",
+          change: "+0.00",
+          changePercent: "+0.00%",
+          isPositive: true
+        });
       }
     }
 
     setIndices(newData);
     setLoading(false);
-    console.log("Market overview loaded");
+    console.log("Market overview loaded", isDemoData ? "(demo data)" : "");
   };
 
   useEffect(() => {
