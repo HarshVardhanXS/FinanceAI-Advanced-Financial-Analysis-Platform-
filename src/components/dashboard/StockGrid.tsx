@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { ArrowUpRight, ArrowDownRight, Plus } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Plus, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Stock {
   symbol: string;
@@ -25,53 +26,104 @@ interface StockGridProps {
 export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
   const [newSymbol, setNewSymbol] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const [watchlist, setWatchlist] = useState<Stock[]>([
     {
       symbol: "AAPL",
       name: "Apple Inc.",
-      price: "$178.23",
-      change: "+2.45",
-      changePercent: "+1.39%",
+      price: "$0.00",
+      change: "+0.00",
+      changePercent: "+0.00%",
       isPositive: true,
       data: [
-        { time: "9:30", value: 175 },
-        { time: "10:00", value: 176 },
-        { time: "10:30", value: 177 },
-        { time: "11:00", value: 178 },
+        { time: "9:30", value: 0 },
+        { time: "10:00", value: 0 },
+        { time: "10:30", value: 0 },
+        { time: "11:00", value: 0 },
       ],
     },
     {
       symbol: "GOOGL",
       name: "Alphabet Inc.",
-      price: "$142.67",
-      change: "-1.23",
-      changePercent: "-0.85%",
-      isPositive: false,
+      price: "$0.00",
+      change: "+0.00",
+      changePercent: "+0.00%",
+      isPositive: true,
       data: [
-        { time: "9:30", value: 144 },
-        { time: "10:00", value: 143 },
-        { time: "10:30", value: 143 },
-        { time: "11:00", value: 142.67 },
+        { time: "9:30", value: 0 },
+        { time: "10:00", value: 0 },
+        { time: "10:30", value: 0 },
+        { time: "11:00", value: 0 },
       ],
     },
     {
       symbol: "MSFT",
       name: "Microsoft Corp.",
-      price: "$378.91",
-      change: "+5.67",
-      changePercent: "+1.52%",
+      price: "$0.00",
+      change: "+0.00",
+      changePercent: "+0.00%",
       isPositive: true,
       data: [
-        { time: "9:30", value: 373 },
-        { time: "10:00", value: 375 },
-        { time: "10:30", value: 377 },
-        { time: "11:00", value: 378.91 },
+        { time: "9:30", value: 0 },
+        { time: "10:00", value: 0 },
+        { time: "10:30", value: 0 },
+        { time: "11:00", value: 0 },
       ],
     },
   ]);
 
-  const handleAddStock = () => {
+  const fetchStockData = async (symbol: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-stock-data', {
+        body: { symbol }
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        console.error('Stock API error:', data.error);
+        return null;
+      }
+
+      return {
+        symbol: data.symbol,
+        name: `${data.symbol} Corporation`,
+        price: `$${data.price}`,
+        change: data.isPositive ? `+${data.change}` : data.change,
+        changePercent: data.isPositive ? `+${data.changePercent}%` : `${data.changePercent}%`,
+        isPositive: data.isPositive,
+        data: data.chartData
+      };
+    } catch (error) {
+      console.error('Error fetching stock data:', error);
+      return null;
+    }
+  };
+
+  const refreshAllStocks = async () => {
+    setLoading(true);
+    const updatedWatchlist = [];
+    
+    for (const stock of watchlist) {
+      const freshData = await fetchStockData(stock.symbol);
+      updatedWatchlist.push(freshData || stock);
+    }
+    
+    setWatchlist(updatedWatchlist);
+    setLoading(false);
+    
+    toast({
+      title: "Refreshed",
+      description: "Stock data updated successfully",
+    });
+  };
+
+  useEffect(() => {
+    refreshAllStocks();
+  }, []);
+
+  const handleAddStock = async () => {
     if (!newSymbol.trim()) {
       toast({
         variant: "destructive",
@@ -92,22 +144,20 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
       return;
     }
 
-    const newStock: Stock = {
-      symbol,
-      name: `${symbol} Corporation`,
-      price: "$0.00",
-      change: "+0.00",
-      changePercent: "+0.00%",
-      isPositive: true,
-      data: [
-        { time: "9:30", value: 0 },
-        { time: "10:00", value: 0 },
-        { time: "10:30", value: 0 },
-        { time: "11:00", value: 0 },
-      ],
-    };
+    setLoading(true);
+    const stockData = await fetchStockData(symbol);
+    setLoading(false);
 
-    setWatchlist([...watchlist, newStock]);
+    if (!stockData) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not fetch data for this symbol. Please check the symbol and try again.",
+      });
+      return;
+    }
+
+    setWatchlist([...watchlist, stockData]);
     setNewSymbol("");
     setDialogOpen(false);
     
@@ -121,13 +171,24 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
     <Card className="p-6 bg-gradient-to-br from-card to-card/50">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">Watchlist</h2>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Stock
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshAllStocks}
+            disabled={loading}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Stock
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Stock to Watchlist</DialogTitle>
@@ -145,12 +206,13 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
                   onKeyDown={(e) => e.key === "Enter" && handleAddStock()}
                 />
               </div>
-              <Button onClick={handleAddStock} className="w-full">
-                Add to Watchlist
+              <Button onClick={handleAddStock} disabled={loading} className="w-full">
+                {loading ? "Fetching..." : "Add to Watchlist"}
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <div className="space-y-4">

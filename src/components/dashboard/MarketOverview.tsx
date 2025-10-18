@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface MarketIndex {
   name: string;
@@ -14,30 +14,67 @@ interface MarketIndex {
 
 export const MarketOverview = () => {
   const [indices, setIndices] = useState<MarketIndex[]>([
-    { name: "S&P 500", value: "4,783.45", change: "+45.23", changePercent: "+0.95%", isPositive: true },
-    { name: "DOW JONES", value: "37,305.16", change: "+123.45", changePercent: "+0.33%", isPositive: true },
-    { name: "NASDAQ", value: "14,813.92", change: "-23.78", changePercent: "-0.16%", isPositive: false },
+    { name: "S&P 500", value: "Loading...", change: "+0.00", changePercent: "+0.00%", isPositive: true },
+    { name: "DOW JONES", value: "Loading...", change: "+0.00", changePercent: "+0.00%", isPositive: true },
+    { name: "NASDAQ", value: "Loading...", change: "+0.00", changePercent: "+0.00%", isPositive: true },
   ]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchMarketData = async () => {
+    setLoading(true);
+    const symbols = ['SPY', 'DIA', 'QQQ']; // ETFs representing major indices
+    const names = ['S&P 500', 'DOW JONES', 'NASDAQ'];
+    const newData: MarketIndex[] = [];
+
+    for (let i = 0; i < symbols.length; i++) {
+      try {
+        const { data, error } = await supabase.functions.invoke('fetch-stock-data', {
+          body: { symbol: symbols[i] }
+        });
+
+        if (!error && data && !data.error) {
+          newData.push({
+            name: names[i],
+            value: `$${data.price}`,
+            change: data.isPositive ? `+${data.change}` : data.change,
+            changePercent: data.isPositive ? `+${data.changePercent}%` : `${data.changePercent}%`,
+            isPositive: data.isPositive
+          });
+        } else {
+          newData.push(indices[i]);
+        }
+      } catch (e) {
+        console.error(`Error fetching ${names[i]}:`, e);
+        newData.push(indices[i]);
+      }
+    }
+
+    setIndices(newData);
+    setLoading(false);
+    console.log("Market overview loaded");
+  };
 
   useEffect(() => {
-    // In production, this would fetch real-time data from an edge function
-    const fetchMarketData = async () => {
-      try {
-        // Placeholder for real-time market data integration
-        console.log("Market overview loaded");
-      } catch (error) {
-        console.error("Error fetching market data:", error);
-      }
-    };
-
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchMarketData, 60000); // Update every 60 seconds
 
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="md:col-span-3 flex justify-end mb-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={fetchMarketData}
+          disabled={loading}
+          className="gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Refresh Markets
+        </Button>
+      </div>
       {indices.map((index) => (
         <Card
           key={index.name}

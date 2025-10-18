@@ -1,66 +1,97 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { symbol } = await req.json();
-    console.log("Analyzing stock:", symbol);
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const alphaVantageKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    // Call Lovable AI for stock analysis
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
+    console.log(`Analyzing stock: ${symbol}`);
+
+    // Fetch real stock data first if API key is available
+    let stockContext = '';
+    if (alphaVantageKey) {
+      try {
+        const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${alphaVantageKey}`;
+        const quoteResponse = await fetch(quoteUrl);
+        const quoteData = await quoteResponse.json();
+        
+        const quote = quoteData['Global Quote'];
+        if (quote && Object.keys(quote).length > 0) {
+          stockContext = `Current real-time data for ${symbol}:
+- Price: $${quote['05. price']}
+- Change: ${quote['09. change']} (${quote['10. change percent']})
+- High: $${quote['03. high']}
+- Low: $${quote['04. low']}
+- Volume: ${quote['06. volume']}
+`;
+        }
+      } catch (e) {
+        console.error('Error fetching real stock data:', e);
+      }
+    }
+
+    const prompt = stockContext 
+      ? `${stockContext}\nBased on this real-time data, provide detailed analysis and insights for ${symbol}.`
+      : `Provide detailed analysis and insights for ${symbol} stock.`;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
-            role: "system",
-            content:
-              "You are a professional financial analyst. Provide concise, actionable insights about stocks based on technical analysis principles. Focus on trends, key indicators, and sentiment.",
+            role: 'system',
+            content: 'You are a financial analyst providing insights on stocks. Provide concise, actionable analysis based on real market data when available.'
           },
           {
-            role: "user",
-            content: `Analyze the stock ${symbol} and provide insights on current trends, technical indicators, and market sentiment. Keep it under 150 words.`,
-          },
+            role: 'user',
+            content: prompt
+          }
         ],
       }),
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error("AI API error:", aiResponse.status, errorText);
-      throw new Error(`AI API error: ${aiResponse.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('AI Gateway error:', response.status, errorText);
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
-    const aiData = await aiResponse.json();
-    const analysis = aiData.choices[0].message.content;
+    const data = await response.json();
+    const analysis = data.choices[0].message.content;
 
-    return new Response(JSON.stringify({ analysis }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.error("Error in analyze-stock function:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ analysis }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  } catch (error) {
+    console.error('Error in analyze-stock function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   }
