@@ -41,12 +41,32 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (password.length < 8) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Password",
+        description: "Password must be at least 8 characters long.",
+      });
+      return;
+    }
+    
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      toast({
+        variant: "destructive",
+        title: "Weak Password",
+        description: "Password must contain uppercase, lowercase, and numbers.",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     const redirectUrl = `${window.location.origin}/`;
 
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: redirectUrl,
@@ -74,7 +94,7 @@ const Auth = () => {
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim().toLowerCase(),
       password,
     });
 
@@ -171,11 +191,11 @@ const Auth = () => {
                   <Input
                     id="signup-password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="Min 8 chars with upper, lower, number"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>

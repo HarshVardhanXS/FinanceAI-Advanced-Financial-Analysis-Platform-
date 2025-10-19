@@ -1,9 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const symbolSchema = z.object({
+  symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters')
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -11,7 +16,17 @@ serve(async (req) => {
   }
 
   try {
-    const { symbol } = await req.json();
+    const body = await req.json();
+    const validation = symbolSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid stock symbol format' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const { symbol } = validation.data;
     console.log("Generating report for:", symbol);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
