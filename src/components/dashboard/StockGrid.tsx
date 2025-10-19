@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { ArrowUpRight, ArrowDownRight, Plus, RefreshCw } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Plus, RefreshCw, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,50 +28,16 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const [watchlist, setWatchlist] = useState<Stock[]>([
-    {
-      symbol: "AAPL",
-      name: "Apple Inc.",
-      price: "$0.00",
-      change: "+0.00",
-      changePercent: "+0.00%",
-      isPositive: true,
-      data: [
-        { time: "9:30", value: 0 },
-        { time: "10:00", value: 0 },
-        { time: "10:30", value: 0 },
-        { time: "11:00", value: 0 },
-      ],
-    },
-    {
-      symbol: "GOOGL",
-      name: "Alphabet Inc.",
-      price: "$0.00",
-      change: "+0.00",
-      changePercent: "+0.00%",
-      isPositive: true,
-      data: [
-        { time: "9:30", value: 0 },
-        { time: "10:00", value: 0 },
-        { time: "10:30", value: 0 },
-        { time: "11:00", value: 0 },
-      ],
-    },
-    {
-      symbol: "MSFT",
-      name: "Microsoft Corp.",
-      price: "$0.00",
-      change: "+0.00",
-      changePercent: "+0.00%",
-      isPositive: true,
-      data: [
-        { time: "9:30", value: 0 },
-        { time: "10:00", value: 0 },
-        { time: "10:30", value: 0 },
-        { time: "11:00", value: 0 },
-      ],
-    },
-  ]);
+  const [watchlist, setWatchlist] = useState<Stock[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
 
   const fetchStockData = async (symbol: string) => {
     try {
@@ -112,7 +78,43 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
     }
   };
 
+  const loadWatchlist = async () => {
+    if (!userId) return;
+    
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('watchlists')
+      .select('*')
+      .eq('user_id', userId)
+      .order('added_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading watchlist:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load watchlist",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      const updatedWatchlist = [];
+      for (const item of data) {
+        const freshData = await fetchStockData(item.symbol);
+        if (freshData) {
+          updatedWatchlist.push(freshData);
+        }
+      }
+      setWatchlist(updatedWatchlist);
+    }
+    setLoading(false);
+  };
+
   const refreshAllStocks = async () => {
+    if (!userId) return;
+    
     setLoading(true);
     const updatedWatchlist = [];
     
@@ -131,10 +133,21 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
   };
 
   useEffect(() => {
-    refreshAllStocks();
-  }, []);
+    if (userId) {
+      loadWatchlist();
+    }
+  }, [userId]);
 
   const handleAddStock = async () => {
+    if (!userId) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please sign in to add stocks",
+      });
+      return;
+    }
+
     if (!newSymbol.trim()) {
       toast({
         variant: "destructive",
@@ -157,13 +170,33 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
 
     setLoading(true);
     const stockData = await fetchStockData(symbol);
-    setLoading(false);
 
     if (!stockData) {
+      setLoading(false);
       toast({
         variant: "destructive",
         title: "Error",
         description: "Could not fetch data for this symbol. Please check the symbol and try again.",
+      });
+      return;
+    }
+
+    // Save to database
+    const { error } = await supabase
+      .from('watchlists')
+      .insert({
+        user_id: userId,
+        symbol: stockData.symbol,
+        name: stockData.name
+      });
+
+    setLoading(false);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add stock to watchlist",
       });
       return;
     }
@@ -175,6 +208,31 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
     toast({
       title: "Success",
       description: `Added ${symbol} to your watchlist`,
+    });
+  };
+
+  const handleRemoveStock = async (symbol: string) => {
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from('watchlists')
+      .delete()
+      .eq('user_id', userId)
+      .eq('symbol', symbol);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to remove stock from watchlist",
+      });
+      return;
+    }
+
+    setWatchlist(watchlist.filter(stock => stock.symbol !== symbol));
+    toast({
+      title: "Removed",
+      description: `Removed ${symbol} from your watchlist`,
     });
   };
 
@@ -227,49 +285,70 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
       </div>
 
       <div className="space-y-4">
-        {watchlist.map((stock) => (
-          <div
-            key={stock.symbol}
-            onClick={() => onSelectStock(stock.symbol)}
-            className={`p-4 rounded-lg border transition-all duration-300 cursor-pointer hover:border-primary ${
-              selectedStock === stock.symbol ? "border-primary bg-primary/5" : "border-border bg-secondary/30"
-            }`}
-          >
-            <div className="grid grid-cols-[1fr,auto,120px] gap-4 items-center">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg">{stock.symbol}</span>
-                  {stock.isPositive ? (
-                    <ArrowUpRight className="h-4 w-4 text-success" />
-                  ) : (
-                    <ArrowDownRight className="h-4 w-4 text-danger" />
-                  )}
+        {watchlist.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p className="text-lg mb-2">Your watchlist is empty</p>
+            <p className="text-sm">Click "Add Stock" to start tracking stocks</p>
+          </div>
+        ) : (
+          watchlist.map((stock) => (
+            <div
+              key={stock.symbol}
+              className={`p-4 rounded-lg border transition-all duration-300 hover:border-primary ${
+                selectedStock === stock.symbol ? "border-primary bg-primary/5" : "border-border bg-secondary/30"
+              }`}
+            >
+              <div className="grid grid-cols-[1fr,auto,120px] gap-4 items-center">
+                <div 
+                  onClick={() => onSelectStock(stock.symbol)}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-lg">{stock.symbol}</span>
+                    {stock.isPositive ? (
+                      <ArrowUpRight className="h-4 w-4 text-success" />
+                    ) : (
+                      <ArrowDownRight className="h-4 w-4 text-danger" />
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">{stock.name}</p>
+                  <div className="flex items-baseline gap-2 mt-2">
+                    <span className="text-xl font-bold">{stock.price}</span>
+                    <span className={`text-sm font-semibold ${stock.isPositive ? "text-success" : "text-danger"}`}>
+                      {stock.change} ({stock.changePercent})
+                    </span>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{stock.name}</p>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <span className="text-xl font-bold">{stock.price}</span>
-                  <span className={`text-sm font-semibold ${stock.isPositive ? "text-success" : "text-danger"}`}>
-                    {stock.change} ({stock.changePercent})
-                  </span>
-                </div>
-              </div>
 
-              <div className="h-16 w-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stock.data}>
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke={stock.isPositive ? "hsl(var(--success))" : "hsl(var(--danger))"}
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="h-16 w-32">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={stock.data}>
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke={stock.isPositive ? "hsl(var(--success))" : "hsl(var(--danger))"}
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveStock(stock.symbol);
+                  }}
+                  className="hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </Card>
   );
