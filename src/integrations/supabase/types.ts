@@ -14,7 +14,176 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      portfolios: {
+        Row: {
+          average_price: number
+          created_at: string
+          id: string
+          quantity: number
+          symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_price: number
+          created_at?: string
+          id?: string
+          quantity: number
+          symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_price?: number
+          created_at?: string
+          id?: string
+          quantity?: number
+          symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolios_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          id: string
+          price: number
+          quantity: number
+          symbol: string
+          total_amount: number
+          transaction_date: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          price: number
+          quantity: number
+          symbol: string
+          total_amount: number
+          transaction_date?: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          price?: number
+          quantity?: number
+          symbol?: string
+          total_amount?: number
+          transaction_date?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          notifications_enabled: boolean | null
+          theme: string | null
+          updated_at: string
+          user_id: string
+          virtual_cash: number
+        }
+        Insert: {
+          created_at?: string
+          notifications_enabled?: boolean | null
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+          virtual_cash?: number
+        }
+        Update: {
+          created_at?: string
+          notifications_enabled?: boolean | null
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
+          virtual_cash?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      watchlists: {
+        Row: {
+          added_at: string
+          id: string
+          name: string
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          name: string
+          symbol: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          name?: string
+          symbol?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
