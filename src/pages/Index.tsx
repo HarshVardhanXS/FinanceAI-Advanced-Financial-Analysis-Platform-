@@ -7,6 +7,7 @@ import { StockGrid } from "@/components/dashboard/StockGrid";
 import { AIInsights } from "@/components/dashboard/AIInsights";
 import { MarketOverview } from "@/components/dashboard/MarketOverview";
 import { ReportGenerator } from "@/components/dashboard/ReportGenerator";
+import { StockWorldMap } from "@/components/dashboard/StockWorldMap";
 
 const Index = () => {
   const [selectedStock, setSelectedStock] = useState<string>("AAPL");
@@ -59,6 +60,8 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         <MarketOverview />
+        
+        <StockWorldMap />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">

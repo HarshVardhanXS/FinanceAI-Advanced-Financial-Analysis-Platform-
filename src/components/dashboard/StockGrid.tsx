@@ -65,7 +65,7 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
 
       return {
         symbol: data.symbol,
-        name: `${data.symbol} Corporation`,
+        name: data.name || `${data.symbol} Corporation`,
         price: `$${data.price}`,
         change: data.isPositive ? `+${data.change}` : data.change,
         changePercent: data.isPositive ? `+${data.changePercent}%` : `${data.changePercent}%`,

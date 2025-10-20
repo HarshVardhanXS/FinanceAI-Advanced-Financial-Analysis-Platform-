@@ -6,6 +6,51 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Company name mappings for worldwide stocks
+const COMPANY_NAMES: Record<string, string> = {
+  'AAPL': 'Apple Inc.',
+  'MSFT': 'Microsoft Corporation',
+  'GOOGL': 'Alphabet Inc.',
+  'GOOG': 'Alphabet Inc.',
+  'AMZN': 'Amazon.com Inc.',
+  'TSLA': 'Tesla Inc.',
+  'NVDA': 'NVIDIA Corporation',
+  'META': 'Meta Platforms Inc.',
+  'TSM': 'Taiwan Semiconductor Manufacturing',
+  'BABA': 'Alibaba Group Holding',
+  'SAP': 'SAP SE',
+  'TM': 'Toyota Motor Corporation',
+  'NVO': 'Novo Nordisk A/S',
+  'ASML': 'ASML Holding N.V.',
+  'SPY': 'SPDR S&P 500 ETF Trust',
+  'QQQ': 'Invesco QQQ Trust',
+  'DIA': 'SPDR Dow Jones Industrial Average ETF',
+  'SONY': 'Sony Group Corporation',
+  'NKE': 'Nike Inc.',
+  'V': 'Visa Inc.',
+  'JPM': 'JPMorgan Chase & Co.',
+  'WMT': 'Walmart Inc.',
+  'PG': 'Procter & Gamble Co.',
+  'JNJ': 'Johnson & Johnson',
+  'UNH': 'UnitedHealth Group Inc.',
+  'HD': 'The Home Depot Inc.',
+  'BAC': 'Bank of America Corp.',
+  'DIS': 'The Walt Disney Company',
+  'NFLX': 'Netflix Inc.',
+  'AMD': 'Advanced Micro Devices Inc.',
+  'INTC': 'Intel Corporation',
+  'CSCO': 'Cisco Systems Inc.',
+  'ORCL': 'Oracle Corporation',
+  'CRM': 'Salesforce Inc.',
+  'ADBE': 'Adobe Inc.',
+  'PYPL': 'PayPal Holdings Inc.',
+  'CMCSA': 'Comcast Corporation',
+  'PFE': 'Pfizer Inc.',
+  'KO': 'The Coca-Cola Company',
+  'PEP': 'PepsiCo Inc.',
+  'MCD': 'McDonald\'s Corporation',
+};
+
 const symbolSchema = z.object({
   symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters')
 });
@@ -54,6 +99,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           symbol: symbol,
+          name: COMPANY_NAMES[symbol.toUpperCase()] || `${symbol} Corporation`,
           price: mockPrice.toFixed(2),
           change: mockChange.toFixed(2),
           changePercent: mockPercent,
@@ -87,6 +133,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           symbol: symbol,
+          name: COMPANY_NAMES[symbol.toUpperCase()] || `${symbol} Corporation`,
           price: mockPrice.toFixed(2),
           change: mockChange.toFixed(2),
           changePercent: mockPercent,
@@ -139,6 +186,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         symbol: symbol,
+        name: COMPANY_NAMES[symbol.toUpperCase()] || `${symbol} Corporation`,
         price: price.toFixed(2),
         change: change.toFixed(2),
         changePercent: changePercent,
