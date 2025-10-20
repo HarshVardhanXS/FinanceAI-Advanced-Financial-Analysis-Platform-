@@ -28,7 +28,7 @@ serve(async (req) => {
     
     const { symbol } = validation.data;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    const alphaVantageKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+    const finnhubKey = Deno.env.get('FINNHUB_API_KEY');
 
     if (!lovableApiKey) {
       throw new Error('LOVABLE_API_KEY not configured');
@@ -38,20 +38,20 @@ serve(async (req) => {
 
     // Fetch real stock data first if API key is available
     let stockContext = '';
-    if (alphaVantageKey) {
+    if (finnhubKey) {
       try {
-        const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${alphaVantageKey}`;
+        const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${finnhubKey}`;
         const quoteResponse = await fetch(quoteUrl);
         const quoteData = await quoteResponse.json();
         
-        const quote = quoteData['Global Quote'];
-        if (quote && Object.keys(quote).length > 0) {
+        // Finnhub quote data: c=current, d=change, dp=percent change, h=high, l=low, pc=previous close
+        if (quoteData.c && quoteData.c !== 0) {
           stockContext = `Current real-time data for ${symbol}:
-- Price: $${quote['05. price']}
-- Change: ${quote['09. change']} (${quote['10. change percent']})
-- High: $${quote['03. high']}
-- Low: $${quote['04. low']}
-- Volume: ${quote['06. volume']}
+- Price: $${quoteData.c.toFixed(2)}
+- Change: $${quoteData.d.toFixed(2)} (${quoteData.dp.toFixed(2)}%)
+- High: $${quoteData.h.toFixed(2)}
+- Low: $${quoteData.l.toFixed(2)}
+- Previous Close: $${quoteData.pc.toFixed(2)}
 `;
         }
       } catch (e) {

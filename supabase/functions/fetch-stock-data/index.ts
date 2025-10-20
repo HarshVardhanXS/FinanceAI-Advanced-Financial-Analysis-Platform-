@@ -27,29 +27,28 @@ serve(async (req) => {
     }
     
     const { symbol } = validation.data;
-    const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
+    const apiKey = Deno.env.get('FINNHUB_API_KEY');
 
     if (!apiKey) {
-      throw new Error('ALPHA_VANTAGE_API_KEY not configured');
+      throw new Error('FINNHUB_API_KEY not configured');
     }
 
     console.log(`Fetching data for symbol: ${symbol}`);
 
-    // Fetch quote data
-    const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
+    // Fetch quote data from Finnhub
+    const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
     const quoteResponse = await fetch(quoteUrl);
     const quoteData = await quoteResponse.json();
 
     console.log('Quote data received:', quoteData);
 
-    // Check for API rate limit or error messages
-    if (quoteData['Note'] || quoteData['Error Message'] || quoteData['Information']) {
-      const errorMsg = quoteData['Note'] || quoteData['Error Message'] || quoteData['Information'];
-      console.error('Alpha Vantage API limit/error:', errorMsg);
+    // Check for API errors
+    if (quoteData.error) {
+      console.error('Finnhub API error:', quoteData.error);
       
-      // Return mock data as fallback when API limit is reached
-      const mockPrice = Math.random() * 100 + 100; // Random price between 100-200
-      const mockChange = (Math.random() - 0.5) * 5; // Random change between -2.5 and 2.5
+      // Return mock data as fallback when API error occurs
+      const mockPrice = Math.random() * 100 + 100;
+      const mockChange = (Math.random() - 0.5) * 5;
       const mockPercent = (mockChange / mockPrice * 100).toFixed(2);
       
       return new Response(
@@ -68,17 +67,16 @@ serve(async (req) => {
             { time: '11:30', value: mockPrice * 0.995 },
             { time: '12:30', value: mockPrice }
           ],
-          isDemo: true // Flag to show this is demo data
+          isDemo: true
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
-
-    const quote = quoteData['Global Quote'];
     
-    if (!quote || Object.keys(quote).length === 0) {
+    // Check if valid data was returned
+    if (!quoteData.c || quoteData.c === 0) {
       console.error('No quote data returned for symbol:', symbol);
       
       // Fallback to mock data
@@ -110,36 +108,44 @@ serve(async (req) => {
       );
     }
 
-    // Fetch intraday data for chart
-    const intradayUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&apikey=${apiKey}`;
-    const intradayResponse = await fetch(intradayUrl);
-    const intradayData = await intradayResponse.json();
+    // Fetch candle data for chart (last 4 hours)
+    const now = Math.floor(Date.now() / 1000);
+    const from = now - (4 * 60 * 60); // 4 hours ago
+    const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=60&from=${from}&to=${now}&token=${apiKey}`;
+    const candleResponse = await fetch(candleUrl);
+    const candleData = await candleResponse.json();
 
-    console.log('Intraday data received');
+    console.log('Candle data received');
 
-    const timeSeries = intradayData['Time Series (60min)'] || {};
-    const chartData = Object.entries(timeSeries)
-      .slice(0, 4)
-      .reverse()
-      .map(([time, values]: [string, any]) => ({
-        time: new Date(time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-        value: parseFloat(values['4. close'])
+    // Process chart data
+    let chartData = [];
+    if (candleData.s === 'ok' && candleData.c && candleData.c.length > 0) {
+      // Take last 4 data points
+      const lastFour = candleData.c.slice(-4);
+      const timestamps = candleData.t.slice(-4);
+      
+      chartData = lastFour.map((close: number, index: number) => ({
+        time: new Date(timestamps[index] * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        value: close
       }));
+    }
 
-    const price = parseFloat(quote['05. price']);
-    const change = parseFloat(quote['09. change']);
-    const changePercent = quote['10. change percent'].replace('%', '');
+    // Finnhub quote data structure:
+    // c: current price, d: change, dp: percent change, h: high, l: low, o: open, pc: previous close
+    const price = quoteData.c;
+    const change = quoteData.d;
+    const changePercent = quoteData.dp.toFixed(2);
 
     return new Response(
       JSON.stringify({
-        symbol: quote['01. symbol'],
+        symbol: symbol,
         price: price.toFixed(2),
         change: change.toFixed(2),
         changePercent: changePercent,
         isPositive: change >= 0,
-        high: parseFloat(quote['03. high']).toFixed(2),
-        low: parseFloat(quote['04. low']).toFixed(2),
-        volume: quote['06. volume'],
+        high: quoteData.h.toFixed(2),
+        low: quoteData.l.toFixed(2),
+        volume: '0', // Finnhub doesn't provide volume in quote endpoint
         chartData: chartData.length > 0 ? chartData : [
           { time: '9:30', value: price },
           { time: '10:30', value: price },
