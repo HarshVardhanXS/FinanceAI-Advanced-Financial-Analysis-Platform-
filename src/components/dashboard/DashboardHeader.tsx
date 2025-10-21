@@ -1,12 +1,15 @@
-import { TrendingUp, LogOut } from "lucide-react";
+import { TrendingUp, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
+import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { role, loading } = useUserRole();
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -45,6 +48,16 @@ export const DashboardHeader = () => {
             <div className="px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium">
               Markets Open
             </div>
+            
+            {!loading && <SubscriptionBadge role={role} />}
+            
+            {role === "admin" && (
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2">
+                <Shield className="h-4 w-4" />
+                Admin
+              </Button>
+            )}
+            
             <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
               Sign Out
