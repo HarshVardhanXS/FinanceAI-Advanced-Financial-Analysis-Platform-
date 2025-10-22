@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export const DashboardHeader = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <SidebarTrigger />
             <div className="p-2 bg-primary/10 rounded-lg">
               <TrendingUp className="h-6 w-6 text-primary" />
             </div>
