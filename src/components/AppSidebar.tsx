@@ -1,4 +1,4 @@
-import { Home, BarChart3, Wallet, Star, Settings, Shield } from "lucide-react";
+import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -18,6 +18,7 @@ const mainItems = [
   { title: "Portfolio", url: "/portfolio", icon: Wallet },
   { title: "Watchlist", url: "/watchlist", icon: Star },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Alerts", url: "/alerts", icon: Bell },
 ];
 
 export function AppSidebar() {

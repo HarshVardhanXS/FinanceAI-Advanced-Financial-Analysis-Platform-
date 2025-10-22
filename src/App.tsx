@@ -11,6 +11,7 @@ import Admin from "./pages/Admin";
 import WatchlistPage from "./pages/WatchlistPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import AlertsPage from "./pages/AlertsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
                       <Route path="/portfolio" element={<PortfolioPage />} />
                       <Route path="/watchlist" element={<WatchlistPage />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />
+                      <Route path="/alerts" element={<AlertsPage />} />
                       <Route path="/admin" element={<Admin />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>

@@ -6,6 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 import { SubscriptionBadge } from "@/components/SubscriptionBadge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationCenter } from "@/components/NotificationCenter";
+import { StockSearch } from "@/components/StockSearch";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -29,10 +32,14 @@ export const DashboardHeader = () => {
     }
   };
 
+  const handleStockSelect = (symbol: string) => {
+    navigate(`/?stock=${symbol}`);
+  };
+
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
             <div className="p-2 bg-primary/10 rounded-lg">
@@ -42,19 +49,26 @@ export const DashboardHeader = () => {
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 FinanceAI
               </h1>
-              <p className="text-xs text-muted-foreground">Advanced Financial Analysis Platform</p>
+              <p className="text-xs text-muted-foreground hidden sm:block">Advanced Financial Analysis Platform</p>
             </div>
+          </div>
+
+          <div className="flex-1 max-w-md mx-4 hidden md:block">
+            <StockSearch onSelectStock={handleStockSelect} />
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium">
+            <div className="px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium hidden sm:block">
               Markets Open
             </div>
             
             {!loading && <SubscriptionBadge role={role} />}
             
+            <NotificationCenter />
+            <ThemeToggle />
+            
             {role === "admin" && (
-              <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2 hidden sm:flex">
                 <Shield className="h-4 w-4" />
                 Admin
               </Button>
@@ -62,7 +76,7 @@ export const DashboardHeader = () => {
             
             <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
               <LogOut className="h-4 w-4" />
-              Sign Out
+              <span className="hidden sm:inline">Sign Out</span>
             </Button>
           </div>
         </div>
