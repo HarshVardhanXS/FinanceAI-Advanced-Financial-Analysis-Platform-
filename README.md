@@ -1,73 +1,89 @@
-# Welcome to your Lovable project
+# Welcome to FinSight - Interactive Financial Analytics Platform
 
-## Project info
+## Project Info
 
-**URL**: https://lovable.dev/projects/7d13318b-40f6-4b43-a6f6-59cc93284332
+**URL**: https://lovable.dev/projects/finsight-analytics  
+**Project Name**: FinSight  
+**Description**: FinSight is a modern web-based financial analytics platform designed for startups and entrepreneurs. It empowers users to visualize, filter, and analyze financial data interactively with real-time updates, role-based access, and a sleek responsive UI.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🚀 Overview
 
-**Use Lovable**
+FinSight delivers **interactive dashboards**, **real-time financial insights**, and **advanced filtering** to help businesses make informed decisions.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7d13318b-40f6-4b43-a6f6-59cc93284332) and start prompting.
+### 🎯 Objectives
 
-Changes made via Lovable will be committed automatically to this repo.
+- Enable users to visualize and analyze financial data interactively.  
+- Provide real-time updates and dynamic filtering.  
+- Offer a modern, responsive, and accessible UI/UX.  
+- Maintain secure, scalable, and maintainable architecture.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🧩 Core Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Feature | Description |
+|----------|--------------|
+| **Dashboard** | Centralized view with key financial metrics and charts |
+| **Data Visualization** | Interactive charts (line, bar, pie) for KPIs |
+| **Dynamic Filtering** | Real-time filters (date range, category, tags) |
+| **Real-Time Updates** | Live data refresh via WebSockets or polling |
+| **Data Import/Export** | Upload CSV/Excel, export as CSV/PDF |
+| **User Authentication** | Secure login, registration, JWT-based sessions |
+| **Role-Based Access** | Admin, Analyst, and Viewer permissions |
+| **Notifications** | In-app alerts for data changes and system messages |
+| **Settings** | Manage profile, preferences, and notifications |
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 👥 User Roles & Permissions
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+| Role | Permissions |
+|------|--------------|
+| **Admin** | Full access: manage users, data, and settings |
+| **Analyst** | Access dashboards, analytics, import/export data |
+| **Viewer** | View dashboards, limited filtering, no modification |
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 🛠️ Tech Stack
 
-**Edit a file directly in GitHub**
+FinSight is built using cutting-edge web technologies:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Frontend Framework**: [Next.js](https://nextjs.org/) (React)
+- **Language**: TypeScript  
+- **Styling**: Tailwind CSS  
+- **State Management**: Redux Toolkit  
+- **Routing**: React Router (integrated with Next.js)  
+- **Real-Time Communication**: WebSockets (Socket.io)  
+- **Data Visualization**: Chart.js / Recharts  
+- **Auth**: JWT-based Authentication  
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🏗️ Architecture Diagram
 
-## What technologies are used for this project?
+```mermaid
+flowchart LR
+    subgraph Client["Frontend (Next.js + TypeScript)"]
+        UI["UI Components (Tailwind CSS)"]
+        State["Redux Toolkit"]
+        Router["React Router"]
+        Hooks["Custom Hooks (API & Data)"]
+    end
 
-This project is built with:
+    subgraph Server["Backend (REST API / WebSocket Server)"]
+        Auth["JWT Authentication"]
+        API["RESTful Endpoints"]
+        WS["WebSocket Service"]
+        DB["Database (Financial Data)"]
+    end
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7d13318b-40f6-4b43-a6f6-59cc93284332) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+    UI --> State
+    State --> API
+    Router --> UI
+    Hooks --> API
+    API --> DB
+    API --> Auth
+    WS --> State
