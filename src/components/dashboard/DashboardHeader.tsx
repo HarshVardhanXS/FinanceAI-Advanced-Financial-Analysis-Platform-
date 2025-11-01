@@ -10,12 +10,14 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StockSearch } from "@/components/StockSearch";
+import { AuthDialog } from "@/components/AuthDialog";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { role, loading } = useUserRole();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -96,7 +98,7 @@ export const DashboardHeader = () => {
                 <span className="hidden sm:inline">Sign Out</span>
               </Button>
             ) : (
-              <Button variant="default" size="sm" onClick={() => navigate("/auth")} className="gap-2">
+              <Button variant="default" size="sm" onClick={() => setAuthDialogOpen(true)} className="gap-2">
                 <LogIn className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign In</span>
               </Button>
@@ -104,6 +106,8 @@ export const DashboardHeader = () => {
           </div>
         </div>
       </div>
+      
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
 };
