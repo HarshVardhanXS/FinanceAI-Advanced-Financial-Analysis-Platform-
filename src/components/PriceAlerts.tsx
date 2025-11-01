@@ -7,10 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Plus, Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import { Bell, Plus, Trash2, TrendingUp, TrendingDown, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { useUserRole } from "@/hooks/useUserRole";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 interface PriceAlert {
   id: string;
@@ -24,8 +22,8 @@ interface PriceAlert {
 export const PriceAlerts = () => {
   const [alerts, setAlerts] = useState<PriceAlert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { role, hasAccess } = useUserRole();
   const [formData, setFormData] = useState({
     symbol: "",
     targetPrice: "",
@@ -33,12 +31,26 @@ export const PriceAlerts = () => {
   });
 
   useEffect(() => {
-    if (hasAccess("premium")) {
-      fetchAlerts();
-    } else {
-      setLoading(false);
-    }
-  }, [hasAccess]);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      if (session) {
+        fetchAlerts();
+      } else {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsAuthenticated(!!session);
+      if (session) {
+        fetchAlerts();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchAlerts = async () => {
     try {
@@ -106,8 +118,18 @@ export const PriceAlerts = () => {
     }
   };
 
-  if (!hasAccess("premium")) {
-    return <UpgradePrompt />;
+  if (!isAuthenticated) {
+    return (
+      <Card className="p-6">
+        <div className="text-center">
+          <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold mb-2">Sign In Required</h3>
+          <p className="text-sm text-muted-foreground">
+            Please sign in to set price alerts and get notified about important price movements.
+          </p>
+        </div>
+      </Card>
+    );
   }
 
   if (loading) {

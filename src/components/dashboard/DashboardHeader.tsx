@@ -1,4 +1,5 @@
-import { TrendingUp, LogOut, Shield } from "lucide-react";
+import { useState, useEffect } from "react";
+import { TrendingUp, LogOut, Shield, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,21 @@ export const DashboardHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { role, loading } = useUserRole();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -28,7 +44,7 @@ export const DashboardHeader = () => {
         title: "Signed out",
         description: "You've been successfully signed out",
       });
-      navigate("/auth");
+      navigate("/");
     }
   };
 
@@ -62,22 +78,29 @@ export const DashboardHeader = () => {
               Markets Open
             </div>
             
-            {!loading && <SubscriptionBadge role={role} />}
+            {isAuthenticated && !loading && <SubscriptionBadge role={role} />}
             
-            <NotificationCenter />
+            {isAuthenticated && <NotificationCenter />}
             <ThemeToggle />
             
-            {role === "admin" && (
+            {isAuthenticated && role === "admin" && (
               <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2 hidden sm:flex">
                 <Shield className="h-4 w-4" />
                 Admin
               </Button>
             )}
             
-            <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </Button>
+            {isAuthenticated ? (
+              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </Button>
+            ) : (
+              <Button variant="default" size="sm" onClick={() => navigate("/auth")} className="gap-2">
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

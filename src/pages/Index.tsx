@@ -8,24 +8,18 @@ import { AIInsights } from "@/components/dashboard/AIInsights";
 import { MarketOverview } from "@/components/dashboard/MarketOverview";
 import { ReportGenerator } from "@/components/dashboard/ReportGenerator";
 import { StockWorldMap } from "@/components/dashboard/StockWorldMap";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { useUserRole } from "@/hooks/useUserRole";
 
 const Index = () => {
   const [selectedStock, setSelectedStock] = useState<string>("AAPL");
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { role, loading: roleLoading } = useUserRole();
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        if (!session) {
-          navigate("/auth");
-        }
         setLoading(false);
       }
     );
@@ -33,9 +27,6 @@ const Index = () => {
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate("/auth");
-      }
       setLoading(false);
     });
 
@@ -51,10 +42,6 @@ const Index = () => {
         </div>
       </div>
     );
-  }
-
-  if (!session) {
-    return null;
   }
 
   return (
@@ -74,10 +61,6 @@ const Index = () => {
           
           <div className="space-y-6">
             <AIInsights selectedStock={selectedStock} />
-            
-            {!roleLoading && role === "free" && (
-              <UpgradePrompt />
-            )}
           </div>
         </div>
       </main>
