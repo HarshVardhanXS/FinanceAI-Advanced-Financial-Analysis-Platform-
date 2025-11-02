@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, PieChart as RePieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, AreaChart, Area } from "recharts";
+import { LineChart, Line, PieChart as RePieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, AreaChart, Area, Tooltip } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface PortfolioItem {
@@ -287,7 +286,7 @@ const AnalyticsPage = () => {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
                         </RePieChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -347,7 +346,7 @@ const AnalyticsPage = () => {
                           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                           <XAxis dataKey="date" className="text-xs" />
                           <YAxis className="text-xs" />
-                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
                           <Area type="monotone" dataKey="value" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#colorValue)" />
                         </AreaChart>
                       </ResponsiveContainer>
