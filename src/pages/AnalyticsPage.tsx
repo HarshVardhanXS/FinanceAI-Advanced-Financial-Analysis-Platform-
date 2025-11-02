@@ -189,84 +189,98 @@ const AnalyticsPage = () => {
             <p className="text-muted-foreground mt-2">Track your performance and insights</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+            <Card className="hover-lift hover-glow transition-all duration-300 border-primary/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${totalValue.toFixed(2)}</div>
-                <p className="text-xs text-muted-foreground">Portfolio value</p>
+                <div className="text-3xl font-bold font-heading gradient-text">${totalValue.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Portfolio value</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`hover-lift transition-all duration-300 border-${totalReturn >= 0 ? 'success' : 'danger'}/20 ${totalReturn >= 0 ? 'hover:shadow-glow-success' : ''}`}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Return</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <div className={`h-10 w-10 rounded-full ${totalReturn >= 0 ? 'bg-success/10' : 'bg-danger/10'} flex items-center justify-center`}>
+                  <TrendingUp className={`h-5 w-5 ${totalReturn >= 0 ? 'text-success' : 'text-danger'}`} />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <div className={`text-3xl font-bold font-heading ${totalReturn >= 0 ? 'text-success' : 'text-danger'}`}>
                   {totalReturn >= 0 ? '+' : ''}{returnPercentage.toFixed(2)}%
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   ${Math.abs(totalReturn).toFixed(2)} {totalReturn >= 0 ? 'gain' : 'loss'}
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover-lift hover-glow transition-all duration-300 border-chart-2/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Positions</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <div className="h-10 w-10 rounded-full bg-chart-2/10 flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-chart-2" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{portfolio.length}</div>
-                <p className="text-xs text-muted-foreground">Holdings</p>
+                <div className="text-3xl font-bold font-heading text-chart-2">{portfolio.length}</div>
+                <p className="text-xs text-muted-foreground mt-1">Holdings</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover-lift hover-glow transition-all duration-300 border-chart-5/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Watchlist</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
+                <div className="h-10 w-10 rounded-full bg-chart-5/10 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-chart-5" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{watchlistCount}</div>
-                <p className="text-xs text-muted-foreground">Stocks tracked</p>
+                <div className="text-3xl font-bold font-heading text-chart-5">{watchlistCount}</div>
+                <p className="text-xs text-muted-foreground mt-1">Stocks tracked</p>
               </CardContent>
             </Card>
           </div>
 
           {portfolio.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">Add positions to see detailed analytics</p>
+            <Card className="animate-fade-in glass-card border-primary/20">
+              <CardContent className="py-16 text-center">
+                <div className="max-w-md mx-auto space-y-4">
+                  <div className="h-16 w-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                    <BarChart3 className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-heading font-semibold">No Data Yet</h3>
+                  <p className="text-muted-foreground">Add positions to your portfolio to see detailed analytics and performance charts</p>
+                </div>
               </CardContent>
             </Card>
           ) : (
-            <Tabs defaultValue="allocation" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="allocation">
+            <Tabs defaultValue="allocation" className="space-y-4 animate-fade-in">
+              <TabsList className="bg-card/50 backdrop-blur-sm">
+                <TabsTrigger value="allocation" className="data-[state=active]:shadow-glow-primary">
                   <PieChart className="h-4 w-4 mr-2" />
                   Asset Allocation
                 </TabsTrigger>
-                <TabsTrigger value="performance">
+                <TabsTrigger value="performance" className="data-[state=active]:shadow-glow-primary">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Performance
                 </TabsTrigger>
-                <TabsTrigger value="transactions">
+                <TabsTrigger value="transactions" className="data-[state=active]:shadow-glow-primary">
                   <Calendar className="h-4 w-4 mr-2" />
                   Transactions
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="allocation" className="space-y-4">
+              <TabsContent value="allocation" className="space-y-4 animate-scale-in">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <Card>
+                  <Card className="hover-lift transition-all duration-300">
                     <CardHeader>
-                      <CardTitle>Portfolio Allocation</CardTitle>
+                      <CardTitle className="font-heading">Portfolio Allocation</CardTitle>
                       <CardDescription>Distribution by stock</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[400px]">
@@ -292,30 +306,30 @@ const AnalyticsPage = () => {
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="hover-lift transition-all duration-300">
                     <CardHeader>
-                      <CardTitle>Holdings Breakdown</CardTitle>
+                      <CardTitle className="font-heading">Holdings Breakdown</CardTitle>
                       <CardDescription>Current value by position</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {portfolio.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between">
+                          <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors duration-200">
                             <div className="flex items-center gap-3">
                               <div
-                                className="w-3 h-3 rounded-full"
+                                className="w-3 h-3 rounded-full shadow-glow-sm"
                                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
                               />
                               <div>
-                                <p className="font-medium">{item.symbol}</p>
+                                <p className="font-semibold font-heading">{item.symbol}</p>
                                 <p className="text-sm text-muted-foreground">
                                   {item.quantity} shares @ ${item.current_price?.toFixed(2)}
                                 </p>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="font-medium">${item.current_value?.toFixed(2)}</p>
-                              <p className={`text-sm ${(item.return_percentage || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              <p className="font-bold font-heading">${item.current_value?.toFixed(2)}</p>
+                              <p className={`text-sm font-medium ${(item.return_percentage || 0) >= 0 ? 'text-success' : 'text-danger'}`}>
                                 {(item.return_percentage || 0) >= 0 ? '+' : ''}{item.return_percentage?.toFixed(2)}%
                               </p>
                             </div>
@@ -327,10 +341,10 @@ const AnalyticsPage = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="performance">
-                <Card>
+              <TabsContent value="performance" className="animate-scale-in">
+                <Card className="hover-lift transition-all duration-300">
                   <CardHeader>
-                    <CardTitle>Performance Overview</CardTitle>
+                    <CardTitle className="font-heading">Performance Overview</CardTitle>
                     <CardDescription>Portfolio value trends</CardDescription>
                   </CardHeader>
                   <CardContent className="h-[400px]">
@@ -359,28 +373,28 @@ const AnalyticsPage = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="transactions">
-                <Card>
+              <TabsContent value="transactions" className="animate-scale-in">
+                <Card className="hover-lift transition-all duration-300">
                   <CardHeader>
-                    <CardTitle>Transaction History</CardTitle>
+                    <CardTitle className="font-heading">Transaction History</CardTitle>
                     <CardDescription>Recent trading activity</CardDescription>
                   </CardHeader>
                   <CardContent>
                     {transactions.length > 0 ? (
                       <div className="space-y-3">
                         {transactions.slice(0, 10).map((txn) => (
-                          <div key={txn.id} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div key={txn.id} className="flex items-center justify-between p-4 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-muted/30 transition-all duration-200">
                             <div className="flex items-center gap-3">
-                              <div className={`w-2 h-2 rounded-full ${txn.transaction_type === 'buy' ? 'bg-green-500' : 'bg-red-500'}`} />
+                              <div className={`w-3 h-3 rounded-full shadow-glow-sm ${txn.transaction_type === 'buy' ? 'bg-success' : 'bg-danger'}`} />
                               <div>
-                                <p className="font-medium">{txn.symbol}</p>
+                                <p className="font-semibold font-heading">{txn.symbol}</p>
                                 <p className="text-sm text-muted-foreground">
                                   {new Date(txn.transaction_date).toLocaleDateString()} • {txn.quantity} shares
                                 </p>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className={`font-medium ${txn.transaction_type === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                              <p className={`font-bold font-heading ${txn.transaction_type === 'buy' ? 'text-success' : 'text-danger'}`}>
                                 {txn.transaction_type === 'buy' ? '-' : '+'}${Math.abs(txn.total_amount).toFixed(2)}
                               </p>
                               <p className="text-sm text-muted-foreground">
@@ -391,8 +405,14 @@ const AnalyticsPage = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p>No transactions yet</p>
+                      <div className="text-center py-16">
+                        <div className="max-w-md mx-auto space-y-4">
+                          <div className="h-16 w-16 mx-auto rounded-full bg-muted/50 flex items-center justify-center">
+                            <Calendar className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <h3 className="text-lg font-heading font-semibold">No Transactions Yet</h3>
+                          <p className="text-muted-foreground">Your trading history will appear here</p>
+                        </div>
                       </div>
                     )}
                   </CardContent>

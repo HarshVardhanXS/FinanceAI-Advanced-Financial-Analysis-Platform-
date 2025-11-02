@@ -19,6 +19,7 @@ All colors MUST be HSL.
 
     --primary: 189 94% 53%;
     --primary-foreground: 222 47% 11%;
+    --primary-glow: 189 94% 63%;
 
     --secondary: 217 33% 22%;
     --secondary-foreground: 210 40% 98%;
@@ -31,6 +32,7 @@ All colors MUST be HSL.
 
     --success: 142 76% 36%;
     --success-foreground: 210 40% 98%;
+    --success-glow: 142 76% 46%;
 
     --danger: 0 84% 60%;
     --danger-foreground: 210 40% 98%;
@@ -50,11 +52,26 @@ All colors MUST be HSL.
     --chart-4: 0 84% 60%;
     --chart-5: 263 70% 50%;
 
+    /* Enhanced Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(189 94% 53%) 0%, hsl(189 80% 40%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 26%) 100%);
+    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 84% 50%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(217 33% 17%) 0%, hsl(217 33% 14%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(222 47% 11%) 0%, hsl(217 33% 14%) 100%);
+    --gradient-glass: linear-gradient(145deg, hsla(217 33% 20% / 0.6) 0%, hsla(217 33% 17% / 0.4) 100%);
     
+    /* Enhanced Shadows */
+    --shadow-sm: 0 1px 2px 0 hsla(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsla(0 0% 0% / 0.1), 0 2px 4px -2px hsla(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsla(0 0% 0% / 0.1), 0 4px 6px -4px hsla(0 0% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsla(0 0% 0% / 0.1), 0 8px 10px -6px hsla(0 0% 0% / 0.1);
     --shadow-glow: 0 0 40px hsla(189 94% 53% / 0.15);
+    --shadow-glow-primary: 0 0 30px hsla(189 94% 53% / 0.3);
+    --shadow-glow-success: 0 0 30px hsla(142 76% 36% / 0.3);
+    
+    /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
@@ -69,6 +86,38 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .hover-glow:hover {
+    box-shadow: var(--shadow-glow-primary);
+  }
+  
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

@@ -36,9 +36,15 @@ const Index = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+        <div className="text-center space-y-4 animate-scale-in">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto"></div>
+            <div className="absolute inset-0 rounded-full shadow-glow-primary animate-pulse"></div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-lg font-heading font-semibold gradient-text">FinanceAI</p>
+            <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
+          </div>
         </div>
       </div>
     );
@@ -49,11 +55,15 @@ const Index = () => {
       <DashboardHeader />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <MarketOverview />
+        <div className="animate-fade-in">
+          <MarketOverview />
+        </div>
         
-        <StockWorldMap />
+        <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <StockWorldMap />
+        </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="lg:col-span-2 space-y-6">
             <StockGrid selectedStock={selectedStock} onSelectStock={setSelectedStock} />
             <ReportGenerator selectedStock={selectedStock} />
