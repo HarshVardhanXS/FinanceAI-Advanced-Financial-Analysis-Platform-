@@ -84,14 +84,14 @@ export const Portfolio = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle>My Portfolio</CardTitle>
+          <CardTitle className="font-heading gradient-text">My Portfolio</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />
+              <div key={i} className="h-20 bg-muted animate-shimmer rounded-lg" />
             ))}
           </div>
         </CardContent>
@@ -100,16 +100,16 @@ export const Portfolio = () => {
   }
 
   return (
-    <Card>
+    <Card className="glass-card hover-lift">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>My Portfolio</CardTitle>
+            <CardTitle className="font-heading gradient-text">My Portfolio</CardTitle>
             <CardDescription>Track your holdings</CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button size="sm" className="hover-glow">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Position
               </Button>
@@ -154,25 +154,28 @@ export const Portfolio = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-          <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
-          <p className="text-3xl font-bold">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        <div className="p-6 rounded-lg bg-gradient-primary border border-primary/20 shadow-glow-primary hover-lift transition-all duration-300 animate-fade-in">
+          <p className="text-sm text-primary-foreground/80 font-heading">Total Portfolio Value</p>
+          <p className="text-4xl font-heading font-bold text-primary-foreground mt-2">${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         {portfolio.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No positions in your portfolio yet</p>
+          <div className="text-center py-12 text-muted-foreground animate-fade-in">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="h-8 w-8 text-primary" />
+            </div>
+            <p className="font-heading font-semibold">No positions in your portfolio yet</p>
             <p className="text-sm mt-2">Add your first position to start tracking</p>
           </div>
         ) : (
           <div className="space-y-2">
             {portfolio.map((item) => (
-              <div
+            <div
                 key={item.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-card border hover:bg-accent/50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-lg bg-secondary/30 border hover:border-primary/50 hover-lift transition-all duration-300 animate-fade-in"
               >
                 <div>
-                  <p className="font-semibold text-lg">{item.symbol}</p>
+                  <p className="font-heading font-bold text-lg">{item.symbol}</p>
                   <p className="text-sm text-muted-foreground">
                     {item.quantity} shares @ ${item.average_price}
                   </p>

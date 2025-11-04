@@ -117,18 +117,20 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-8 animate-fade-in">
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <TrendingUp className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">FinanceAI</h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
+              <TrendingUp className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <h1 className="text-4xl font-heading font-bold gradient-text">FinanceAI</h1>
           </div>
           <p className="text-muted-foreground">
             AI-powered financial analysis platform
           </p>
         </div>
 
-        <Card className="p-6">
+        <Card className="glass-card p-6 hover-lift">
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -163,7 +165,7 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full hover-glow" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
@@ -198,7 +200,7 @@ const Auth = () => {
                     minLength={8}
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full hover-glow" disabled={loading}>
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>

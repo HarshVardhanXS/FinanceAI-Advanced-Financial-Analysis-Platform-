@@ -120,10 +120,12 @@ export const PriceAlerts = () => {
 
   if (!isAuthenticated) {
     return (
-      <Card className="p-6">
+      <Card className="glass-card p-6 hover-lift animate-fade-in">
         <div className="text-center">
-          <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">Sign In Required</h3>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <Lock className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-heading font-bold mb-2 gradient-text">Sign In Required</h3>
           <p className="text-sm text-muted-foreground">
             Please sign in to set price alerts and get notified about important price movements.
           </p>
@@ -134,14 +136,14 @@ export const PriceAlerts = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle>Price Alerts</CardTitle>
+          <CardTitle className="font-heading gradient-text">Price Alerts</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             {[1, 2].map((i) => (
-              <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
+              <div key={i} className="h-16 bg-muted animate-shimmer rounded-lg" />
             ))}
           </div>
         </CardContent>
@@ -150,11 +152,11 @@ export const PriceAlerts = () => {
   }
 
   return (
-    <Card>
+    <Card className="glass-card hover-lift">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 font-heading gradient-text">
               <Bell className="h-5 w-5" />
               Price Alerts
             </CardTitle>
@@ -162,7 +164,7 @@ export const PriceAlerts = () => {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button size="sm" className="hover-glow">
                 <Plus className="h-4 w-4 mr-2" />
                 New Alert
               </Button>
@@ -216,9 +218,11 @@ export const PriceAlerts = () => {
       </CardHeader>
       <CardContent>
         {alerts.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No active alerts</p>
+          <div className="text-center py-12 text-muted-foreground animate-fade-in">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <Bell className="h-8 w-8 text-primary" />
+            </div>
+            <p className="font-heading font-semibold">No active alerts</p>
             <p className="text-sm mt-2">Create your first price alert</p>
           </div>
         ) : (
@@ -226,7 +230,7 @@ export const PriceAlerts = () => {
             {alerts.map((alert) => (
               <div
                 key={alert.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-card border hover:bg-accent/50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-lg bg-secondary/30 border hover:border-primary/50 hover-lift transition-all duration-300 animate-fade-in"
               >
                 <div className="flex items-center gap-3">
                   {alert.alert_type === "above" ? (

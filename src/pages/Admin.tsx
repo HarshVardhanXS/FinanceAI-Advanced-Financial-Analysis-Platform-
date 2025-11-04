@@ -129,9 +129,15 @@ const Admin = () => {
   if (loading || loadingUsers) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+        <div className="text-center space-y-4 animate-scale-in">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto"></div>
+            <div className="absolute inset-0 rounded-full shadow-glow-primary animate-pulse"></div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-lg font-heading font-semibold gradient-text">Loading Admin Panel</p>
+            <p className="text-sm text-muted-foreground">Please wait...</p>
+          </div>
         </div>
       </div>
     );
@@ -145,13 +151,15 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader />
       
-      <main className="container mx-auto px-4 py-6">
-        <Card>
+      <main className="container mx-auto px-4 py-6 animate-fade-in">
+        <Card className="glass-card hover-lift">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Users className="h-6 w-6 text-primary" />
+              <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
+                <Users className="h-6 w-6 text-primary-foreground" />
+              </div>
               <div>
-                <CardTitle>User Management</CardTitle>
+                <CardTitle className="font-heading gradient-text">User Management</CardTitle>
                 <CardDescription>Manage user roles and subscriptions</CardDescription>
               </div>
             </div>
@@ -161,7 +169,7 @@ const Admin = () => {
               {users.map((user) => (
                 <div
                   key={user.user_id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  className="flex items-center justify-between p-4 border rounded-lg bg-secondary/30 hover:border-primary/50 hover-lift transition-all duration-300"
                 >
                   <div className="flex-1 space-y-1">
                     <p className="font-medium">{user.email}</p>

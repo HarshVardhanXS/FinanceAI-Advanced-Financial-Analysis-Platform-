@@ -84,14 +84,14 @@ export const Watchlist = () => {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
-          <CardTitle>My Watchlist</CardTitle>
+          <CardTitle className="font-heading gradient-text">My Watchlist</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
+              <div key={i} className="h-16 bg-muted animate-shimmer rounded-lg" />
             ))}
           </div>
         </CardContent>
@@ -100,9 +100,9 @@ export const Watchlist = () => {
   }
 
   return (
-    <Card>
+    <Card className="glass-card hover-lift">
       <CardHeader>
-        <CardTitle>My Watchlist</CardTitle>
+        <CardTitle className="font-heading gradient-text">My Watchlist</CardTitle>
         <CardDescription>Track your favorite stocks</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -112,15 +112,19 @@ export const Watchlist = () => {
             value={newSymbol}
             onChange={(e) => setNewSymbol(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && addToWatchlist()}
+            className="hover:border-primary/50 transition-colors"
           />
-          <Button onClick={addToWatchlist} size="icon">
+          <Button onClick={addToWatchlist} size="icon" className="hover-glow">
             <Plus className="h-4 w-4" />
           </Button>
         </div>
 
         {watchlist.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No stocks in your watchlist yet</p>
+          <div className="text-center py-12 text-muted-foreground animate-fade-in">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="h-8 w-8 text-primary" />
+            </div>
+            <p className="font-heading font-semibold">No stocks in your watchlist yet</p>
             <p className="text-sm mt-2">Add your first stock above</p>
           </div>
         ) : (
@@ -128,11 +132,11 @@ export const Watchlist = () => {
             {watchlist.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-card border hover:bg-accent/50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border hover:border-primary/50 hover-lift transition-all duration-300 animate-fade-in"
               >
                 <div className="flex items-center gap-3">
                   <div>
-                    <p className="font-semibold">{item.symbol}</p>
+                    <p className="font-heading font-bold">{item.symbol}</p>
                     <p className="text-xs text-muted-foreground">
                       Added {new Date(item.added_at).toLocaleDateString()}
                     </p>
