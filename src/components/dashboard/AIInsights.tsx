@@ -37,20 +37,20 @@ export const AIInsights = ({ selectedStock }: AIInsightsProps) => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-primary/20">
+    <Card className="glass-card p-6 border-primary/20 hover-lift">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Sparkles className="h-5 w-5 text-primary" />
+          <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold">AI Insights</h2>
+          <h2 className="text-xl font-heading font-bold gradient-text">AI Insights</h2>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={generateInsights}
           disabled={isLoading}
-          className="gap-2"
+          className="gap-2 hover-glow"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
@@ -58,14 +58,14 @@ export const AIInsights = ({ selectedStock }: AIInsightsProps) => {
       </div>
 
       <div className="space-y-4">
-        <div className="p-4 rounded-lg bg-secondary/50 border border-border">
-          <p className="text-sm font-medium mb-2 text-primary">Current Analysis: {selectedStock}</p>
+        <div className="p-4 rounded-lg bg-secondary/50 border border-border hover-lift transition-all duration-300">
+          <p className="text-sm font-heading font-semibold mb-2 text-primary">Current Analysis: {selectedStock}</p>
           <p className="text-sm text-muted-foreground leading-relaxed">{insights}</p>
         </div>
 
         <div className="space-y-2">
-          <div className="p-3 rounded-lg bg-success/10 border border-success/20">
-            <p className="text-sm font-semibold text-success mb-1">Bullish Signals</p>
+          <div className="p-3 rounded-lg bg-gradient-success border border-success/20 hover-lift transition-all duration-300">
+            <p className="text-sm font-heading font-semibold text-success mb-1">Bullish Signals</p>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• Strong volume increase (+23%)</li>
               <li>• MACD crossover detected</li>
@@ -73,8 +73,8 @@ export const AIInsights = ({ selectedStock }: AIInsightsProps) => {
             </ul>
           </div>
 
-          <div className="p-3 rounded-lg bg-danger/10 border border-danger/20">
-            <p className="text-sm font-semibold text-danger mb-1">Risk Factors</p>
+          <div className="p-3 rounded-lg bg-gradient-danger border border-danger/20 hover-lift transition-all duration-300">
+            <p className="text-sm font-heading font-semibold text-danger mb-1">Risk Factors</p>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• High RSI (72) - overbought</li>
               <li>• Resistance at $180</li>

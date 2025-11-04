@@ -94,14 +94,14 @@ export const MarketOverview = () => {
       {indices.map((index) => (
         <Card
           key={index.name}
-          className="p-6 bg-gradient-to-br from-card to-card/50 border-border hover:border-primary/50 transition-all duration-300"
+          className="glass-card p-6 border-border hover-lift hover-glow animate-fade-in"
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-muted-foreground font-medium">{index.name}</p>
-              <p className="text-2xl font-bold mt-2">{index.value}</p>
+              <p className="text-sm text-muted-foreground font-heading font-medium">{index.name}</p>
+              <p className="text-2xl font-heading font-bold mt-2">{index.value}</p>
             </div>
-            <div className={`p-2 rounded-lg ${index.isPositive ? 'bg-success/10' : 'bg-danger/10'}`}>
+            <div className={`p-2 rounded-lg shadow-sm ${index.isPositive ? 'bg-gradient-success' : 'bg-gradient-danger'}`}>
               {index.isPositive ? (
                 <TrendingUp className="h-5 w-5 text-success" />
               ) : (

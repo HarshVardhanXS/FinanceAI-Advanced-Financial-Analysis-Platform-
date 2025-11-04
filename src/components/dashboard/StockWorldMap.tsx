@@ -82,15 +82,15 @@ export const StockWorldMap = () => {
   }, []);
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card to-card/50">
+    <Card className="glass-card p-6 hover-lift">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">Global Stock Market</h2>
+        <h2 className="text-xl font-heading font-bold gradient-text">Global Stock Market</h2>
         <div className="text-sm text-muted-foreground">
           {loading ? "Loading..." : `${stocks.length} stocks tracked worldwide`}
         </div>
       </div>
 
-      <div className="relative h-[500px] rounded-lg overflow-hidden bg-secondary/30">
+      <div className="relative h-[500px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
@@ -155,10 +155,10 @@ export const StockWorldMap = () => {
         <AnimatePresence>
           {selectedStock && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm border rounded-lg p-4 shadow-xl min-w-[280px]"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="absolute top-4 right-4 glass-card p-4 shadow-glow-primary min-w-[280px]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
@@ -196,7 +196,7 @@ export const StockWorldMap = () => {
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
-            className="p-3 rounded-lg border bg-secondary/30 cursor-pointer"
+            className="p-3 rounded-lg border bg-secondary/30 cursor-pointer hover-lift hover:border-primary/50"
             onMouseEnter={() => setSelectedStock(stock)}
             onMouseLeave={() => setSelectedStock(null)}
           >

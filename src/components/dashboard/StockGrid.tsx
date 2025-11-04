@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { ArrowUpRight, ArrowDownRight, Plus, RefreshCw, X } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Plus, RefreshCw, X, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -237,23 +237,23 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card to-card/50">
+    <Card className="glass-card p-6 hover-lift">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">Watchlist</h2>
+        <h2 className="text-xl font-heading font-bold gradient-text">Watchlist</h2>
         <div className="flex gap-2">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={refreshAllStocks}
             disabled={loading}
-            className="gap-2"
+            className="gap-2 hover-glow"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 hover-glow">
                 <Plus className="h-4 w-4" />
                 Add Stock
               </Button>
@@ -286,16 +286,21 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
 
       <div className="space-y-4">
         {watchlist.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <p className="text-lg mb-2">Your watchlist is empty</p>
+          <div className="text-center py-16 text-muted-foreground animate-fade-in">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="h-8 w-8 text-primary" />
+            </div>
+            <p className="text-lg font-heading font-semibold mb-2">Your watchlist is empty</p>
             <p className="text-sm">Click "Add Stock" to start tracking stocks</p>
           </div>
         ) : (
           watchlist.map((stock) => (
             <div
               key={stock.symbol}
-              className={`p-4 rounded-lg border transition-all duration-300 hover:border-primary ${
-                selectedStock === stock.symbol ? "border-primary bg-primary/5" : "border-border bg-secondary/30"
+              className={`p-4 rounded-lg border transition-all duration-300 hover-lift cursor-pointer ${
+                selectedStock === stock.symbol 
+                  ? "border-primary bg-gradient-primary shadow-glow-primary" 
+                  : "border-border bg-secondary/30 hover:border-primary/50"
               }`}
             >
               <div className="grid grid-cols-[1fr,auto,120px] gap-4 items-center">

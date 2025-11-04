@@ -49,13 +49,13 @@ export const ReportGenerator = ({ selectedStock }: ReportGeneratorProps) => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card to-card/50">
+    <Card className="glass-card p-6 hover-lift">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <FileText className="h-5 w-5 text-primary" />
+          <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
+            <FileText className="h-5 w-5 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold">Report Generator</h2>
+          <h2 className="text-xl font-heading font-bold gradient-text">Report Generator</h2>
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export const ReportGenerator = ({ selectedStock }: ReportGeneratorProps) => {
         </p>
 
         <div className="flex gap-3">
-          <Button onClick={generateReport} disabled={isGenerating} className="flex-1 gap-2">
+          <Button onClick={generateReport} disabled={isGenerating} className="flex-1 gap-2 hover-glow">
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -81,7 +81,7 @@ export const ReportGenerator = ({ selectedStock }: ReportGeneratorProps) => {
           </Button>
 
           {reportData && (
-            <Button onClick={downloadReport} variant="outline" className="gap-2">
+            <Button onClick={downloadReport} variant="outline" className="gap-2 hover-glow">
               <Download className="h-4 w-4" />
               Download
             </Button>
@@ -89,7 +89,7 @@ export const ReportGenerator = ({ selectedStock }: ReportGeneratorProps) => {
         </div>
 
         {reportData && (
-          <div className="p-4 rounded-lg bg-secondary/50 border border-border max-h-64 overflow-y-auto">
+          <div className="p-4 rounded-lg bg-secondary/50 border border-border max-h-64 overflow-y-auto hover-lift transition-all duration-300 animate-fade-in">
             <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono">{reportData}</pre>
           </div>
         )}
