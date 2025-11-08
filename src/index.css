@@ -95,12 +95,14 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Glass morphism effects */
   .glass-card {
     background: var(--gradient-glass);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
   
+  /* Hover lift effect */
   .hover-lift {
     transition: var(--transition-smooth);
   }
@@ -110,14 +112,134 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-xl);
   }
   
+  /* Hover glow effect */
   .hover-glow:hover {
     box-shadow: var(--shadow-glow-primary);
   }
   
+  .shadow-glow-sm {
+    box-shadow: 0 0 20px hsla(189 94% 53% / 0.15);
+  }
+  
+  /* Gradient text */
   .gradient-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  
+  /* Micro-interactions */
+  .btn-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: hsla(189 94% 53% / 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  .btn-ripple:active::after {
+    width: 300px;
+    height: 300px;
+  }
+  
+  /* Interactive card */
+  .interactive-card {
+    transition: var(--transition-smooth);
+    cursor: pointer;
+  }
+  
+  .interactive-card:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .interactive-card:active {
+    transform: translateY(0) scale(0.99);
+  }
+  
+  /* Pulse animation for loading */
+  .pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 20px hsla(189 94% 53% / 0.3);
+    }
+    50% {
+      opacity: .8;
+      box-shadow: 0 0 30px hsla(189 94% 53% / 0.5);
+    }
+  }
+  
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsla(217 33% 17% / 0.5) 0%,
+      hsla(189 94% 53% / 0.2) 50%,
+      hsla(217 33% 17% / 0.5) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  /* Smooth bounce */
+  .bounce-in {
+    animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  /* Fade slide in */
+  .fade-slide-in {
+    animation: fade-slide-in 0.4s ease-out;
+  }
+  
+  @keyframes fade-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

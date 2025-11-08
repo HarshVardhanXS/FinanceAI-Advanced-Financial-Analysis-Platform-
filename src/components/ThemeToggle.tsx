@@ -21,11 +21,12 @@ export const ThemeToggle = () => {
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={toggleTheme}>
+    <Button variant="ghost" size="icon" onClick={toggleTheme} className="relative overflow-hidden group">
+      <div className="absolute inset-0 bg-primary/10 scale-0 group-hover:scale-100 rounded-md transition-transform duration-300" />
       {theme === "dark" ? (
-        <Sun className="h-5 w-5" />
+        <Sun className="h-5 w-5 rotate-0 scale-100 transition-all duration-500 group-hover:rotate-90 group-hover:text-primary" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-5 w-5 rotate-0 scale-100 transition-all duration-500 group-hover:-rotate-90 group-hover:text-primary" />
       )}
     </Button>
   );
