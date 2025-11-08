@@ -1,5 +1,6 @@
 import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useEffect } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const mainItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -22,13 +24,21 @@ const mainItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
   const { role } = useUserRole();
+  const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
 
+  // Auto-collapse on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setOpen(false);
+    }
+  }, [isMobile, setOpen]);
+
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="border-r border-border/50 backdrop-blur-xl">
+      <SidebarContent className="bg-background/95">
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -41,11 +51,12 @@ export function AppSidebar() {
                       end
                       className={({ isActive }) =>
                         isActive
-                          ? "bg-accent text-accent-foreground font-medium"
-                          : "hover:bg-accent/50"
+                          ? "bg-accent text-accent-foreground font-medium min-h-[44px]"
+                          : "hover:bg-accent/50 min-h-[44px]"
                       }
+                      onClick={() => isMobile && setOpen(false)}
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-5 w-5" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -66,11 +77,12 @@ export function AppSidebar() {
                       to="/admin"
                       className={({ isActive }) =>
                         isActive
-                          ? "bg-accent text-accent-foreground font-medium"
-                          : "hover:bg-accent/50"
+                          ? "bg-accent text-accent-foreground font-medium min-h-[44px]"
+                          : "hover:bg-accent/50 min-h-[44px]"
                       }
+                      onClick={() => isMobile && setOpen(false)}
                     >
-                      <Shield className="h-4 w-4" />
+                      <Shield className="h-5 w-5" />
                       {!collapsed && <span>Admin Panel</span>}
                     </NavLink>
                   </SidebarMenuButton>

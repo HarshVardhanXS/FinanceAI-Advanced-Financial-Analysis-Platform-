@@ -56,18 +56,18 @@ export const DashboardHeader = () => {
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <SidebarTrigger />
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-primary" />
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <SidebarTrigger className="min-h-[44px] min-w-[44px]" />
+            <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent truncate">
                 FinanceAI
               </h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Advanced Financial Analysis Platform</p>
+              <p className="text-xs text-muted-foreground hidden lg:block">Advanced Financial Analysis Platform</p>
             </div>
           </div>
 
@@ -75,8 +75,8 @@ export const DashboardHeader = () => {
             <StockSearch onSelectStock={handleStockSelect} />
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className="px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium hidden sm:block">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="px-2 sm:px-3 py-1 rounded-full bg-success/10 text-success text-xs sm:text-sm font-medium hidden lg:block">
               Markets Open
             </div>
             
@@ -86,19 +86,19 @@ export const DashboardHeader = () => {
             <ThemeToggle />
             
             {isAuthenticated && role === "admin" && (
-              <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2 hidden sm:flex">
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin")} className="gap-2 hidden md:flex min-h-[44px]">
                 <Shield className="h-4 w-4" />
-                Admin
+                <span className="hidden lg:inline">Admin</span>
               </Button>
             )}
             
             {isAuthenticated ? (
-              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
+              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 min-h-[44px] min-w-[44px]">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign Out</span>
               </Button>
             ) : (
-              <Button variant="default" size="sm" onClick={() => setAuthDialogOpen(true)} className="gap-2">
+              <Button variant="default" size="sm" onClick={() => setAuthDialogOpen(true)} className="gap-2 min-h-[44px] min-w-[44px]">
                 <LogIn className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign In</span>
               </Button>

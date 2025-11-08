@@ -161,18 +161,18 @@ const AnalyticsPage = () => {
     return (
       <div className="min-h-screen bg-background">
         <DashboardHeader />
-        <main className="container mx-auto px-4 py-6">
-          <div className="space-y-6">
+        <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
               <Skeleton className="h-9 w-48" />
-              <Skeleton className="h-5 w-96 mt-2" />
+              <Skeleton className="h-5 w-64 sm:w-96 mt-2" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <Skeleton key={i} className="h-32" />
               ))}
             </div>
-            <Skeleton className="h-[500px]" />
+            <Skeleton className="h-[400px] sm:h-[500px]" />
           </div>
         </main>
       </div>
@@ -182,14 +182,14 @@ const AnalyticsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
-      <main className="container mx-auto px-4 py-6">
-        <div className="space-y-6">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        <div className="space-y-4 sm:space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground mt-2">Track your performance and insights</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+            <p className="text-muted-foreground mt-2 text-sm sm:text-base">Track your performance and insights</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
             <Card className="hover-lift hover-glow transition-all duration-300 border-primary/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Value</CardTitle>
