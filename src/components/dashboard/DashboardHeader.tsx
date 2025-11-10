@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StockSearch } from "@/components/StockSearch";
 import { AuthDialog } from "@/components/AuthDialog";
+import { StockTicker } from "./StockTicker";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -106,6 +107,8 @@ export const DashboardHeader = () => {
           </div>
         </div>
       </div>
+      
+      <StockTicker />
       
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>

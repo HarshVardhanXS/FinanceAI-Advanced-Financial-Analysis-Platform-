@@ -242,4 +242,34 @@ All colors MUST be HSL.
       transform: translateY(0);
     }
   }
+  
+  /* Stock Ticker Animation */
+  @keyframes ticker-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .ticker-wrapper {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .ticker-content {
+    display: inline-flex;
+    animation: ticker-scroll 60s linear infinite;
+    will-change: transform;
+  }
+
+  .ticker-content:hover {
+    animation-play-state: paused;
+  }
+
+  .ticker-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
