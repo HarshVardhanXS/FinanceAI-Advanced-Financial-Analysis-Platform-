@@ -1,4 +1,4 @@
-import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell } from "lucide-react";
+import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell, GitCompare } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect } from "react";
 import {
@@ -20,6 +20,7 @@ const mainItems = [
   { title: "Portfolio", url: "/portfolio", icon: Wallet },
   { title: "Watchlist", url: "/watchlist", icon: Star },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Comparison", url: "/comparison", icon: GitCompare },
   { title: "Alerts", url: "/alerts", icon: Bell },
 ];
 
