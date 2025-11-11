@@ -90,7 +90,7 @@ export const StockWorldMap = () => {
         </div>
       </div>
 
-      <div className="relative h-[400px] lg:h-[500px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
+      <div className="relative h-[350px] md:h-[450px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
@@ -123,30 +123,12 @@ export const StockWorldMap = () => {
               onMouseEnter={() => setSelectedStock(stock)}
               onMouseLeave={() => setSelectedStock(null)}
             >
-              <motion.circle
-                r={6}
+              <circle
+                r={4}
                 fill={stock.isPositive ? "hsl(var(--success))" : "hsl(var(--danger))"}
                 stroke="hsl(var(--background))"
-                strokeWidth={2}
-                className="cursor-pointer"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                whileHover={{ scale: 1.5 }}
-                transition={{ duration: 0.3 }}
-              />
-              <motion.circle
-                r={8}
-                fill={stock.isPositive ? "hsl(var(--success) / 0.3)" : "hsl(var(--danger) / 0.3)"}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ 
-                  scale: [1, 1.5, 1],
-                  opacity: [0.5, 0, 0.5]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
+                strokeWidth={1.5}
+                className="cursor-pointer transition-transform hover:scale-150"
               />
             </Marker>
           ))}
@@ -188,20 +170,16 @@ export const StockWorldMap = () => {
         </AnimatePresence>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
         {stocks.map((stock) => (
-          <motion.div
+          <div
             key={stock.symbol}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-            className="p-3 rounded-lg border bg-secondary/30 cursor-pointer hover-lift hover:border-primary/50"
+            className="p-2 rounded-lg border bg-secondary/30 cursor-pointer hover:bg-secondary/50 transition-all hover:border-primary/50"
             onMouseEnter={() => setSelectedStock(stock)}
             onMouseLeave={() => setSelectedStock(null)}
           >
             <div className="flex items-center gap-1 mb-1">
-              <span className="font-semibold text-sm">{stock.symbol}</span>
+              <span className="font-semibold text-xs">{stock.symbol}</span>
               {stock.isPositive ? (
                 <TrendingUp className="h-3 w-3 text-success" />
               ) : (
@@ -210,13 +188,13 @@ export const StockWorldMap = () => {
             </div>
             {stock.price && (
               <>
-                <div className="text-xs font-bold">{stock.price}</div>
-                <div className={`text-xs ${stock.isPositive ? "text-success" : "text-danger"}`}>
+                <div className="text-[10px] font-bold truncate">{stock.price}</div>
+                <div className={`text-[10px] ${stock.isPositive ? "text-success" : "text-danger"}`}>
                   {stock.isPositive ? "+" : ""}{stock.changePercent}%
                 </div>
               </>
             )}
-          </motion.div>
+          </div>
         ))}
       </div>
     </Card>
