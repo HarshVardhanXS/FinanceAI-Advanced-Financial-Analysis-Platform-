@@ -90,7 +90,7 @@ export const StockWorldMap = () => {
         </div>
       </div>
 
-      <div className="relative h-[350px] md:h-[450px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
+      <div className="relative h-[300px] md:h-[400px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
@@ -107,9 +107,9 @@ export const StockWorldMap = () => {
                   stroke="hsl(var(--border))"
                   strokeWidth={0.5}
                   style={{
-                    default: { outline: "none" },
-                    hover: { fill: "hsl(var(--accent))", outline: "none" },
-                    pressed: { outline: "none" },
+                    default: { outline: "none", transition: "none" },
+                    hover: { outline: "none", transition: "none" },
+                    pressed: { outline: "none", transition: "none" },
                   }}
                 />
               ))
@@ -124,11 +124,12 @@ export const StockWorldMap = () => {
               onMouseLeave={() => setSelectedStock(null)}
             >
               <circle
-                r={4}
+                r={3}
                 fill={stock.isPositive ? "hsl(var(--success))" : "hsl(var(--danger))"}
                 stroke="hsl(var(--background))"
-                strokeWidth={1.5}
-                className="cursor-pointer transition-transform hover:scale-150"
+                strokeWidth={1}
+                className="cursor-pointer"
+                style={{ transition: "none" }}
               />
             </Marker>
           ))}
