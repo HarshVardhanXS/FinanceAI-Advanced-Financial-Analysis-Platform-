@@ -303,13 +303,13 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
                   : "border-border bg-secondary/30 hover:border-primary/50"
               }`}
             >
-              <div className="grid grid-cols-[1fr,auto,120px] gap-4 items-center">
+              <div className="grid grid-cols-[1fr,auto,auto] gap-3 items-center">
                 <div 
                   onClick={() => onSelectStock(stock.symbol)}
                   className="cursor-pointer"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-lg">{stock.symbol}</span>
+                    <span className="font-bold text-base">{stock.symbol}</span>
                     {stock.isPositive ? (
                       <ArrowUpRight className="h-4 w-4 text-success" />
                     ) : (
@@ -317,15 +317,15 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">{stock.name}</p>
-                  <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-xl font-bold">{stock.price}</span>
-                    <span className={`text-sm font-semibold ${stock.isPositive ? "text-success" : "text-danger"}`}>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-lg font-bold">{stock.price}</span>
+                    <span className={`text-xs font-semibold ${stock.isPositive ? "text-success" : "text-danger"}`}>
                       {stock.change} ({stock.changePercent})
                     </span>
                   </div>
                 </div>
 
-                <div className="h-16 w-32">
+                <div className="h-12 w-24 hidden sm:block">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={stock.data}>
                       <Line
