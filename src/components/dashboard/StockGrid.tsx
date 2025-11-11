@@ -303,7 +303,7 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
                   : "border-border bg-secondary/30 hover:border-primary/50"
               }`}
             >
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr,auto,auto] gap-4 items-center">
+              <div className="grid grid-cols-[1fr,auto,120px] gap-4 items-center">
                 <div 
                   onClick={() => onSelectStock(stock.symbol)}
                   className="cursor-pointer"
@@ -325,7 +325,7 @@ export const StockGrid = ({ selectedStock, onSelectStock }: StockGridProps) => {
                   </div>
                 </div>
 
-                <div className="h-16 w-32 hidden sm:block">
+                <div className="h-16 w-32">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={stock.data}>
                       <Line

@@ -12,7 +12,6 @@ import WatchlistPage from "./pages/WatchlistPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AlertsPage from "./pages/AlertsPage";
-import ComparisonPage from "./pages/ComparisonPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,7 +37,6 @@ const App = () => (
                       <Route path="/watchlist" element={<WatchlistPage />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />
                       <Route path="/alerts" element={<AlertsPage />} />
-                      <Route path="/comparison" element={<ComparisonPage />} />
                       <Route path="/admin" element={<Admin />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
