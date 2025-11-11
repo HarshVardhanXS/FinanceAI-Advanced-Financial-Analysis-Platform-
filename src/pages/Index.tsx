@@ -54,7 +54,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <DashboardHeader />
       
-      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <main className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
         <div className="animate-fade-in">
           <MarketOverview />
         </div>
@@ -63,13 +63,13 @@ const Index = () => {
           <StockWorldMap />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="lg:col-span-2 space-y-6">
             <StockGrid selectedStock={selectedStock} onSelectStock={setSelectedStock} />
             <ReportGenerator selectedStock={selectedStock} />
           </div>
           
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-6">
             <AIInsights selectedStock={selectedStock} />
           </div>
         </div>

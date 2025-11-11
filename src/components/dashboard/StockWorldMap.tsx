@@ -90,11 +90,11 @@ export const StockWorldMap = () => {
         </div>
       </div>
 
-      <div className="relative h-[300px] sm:h-[400px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
+      <div className="relative h-[400px] lg:h-[500px] rounded-lg overflow-hidden bg-secondary/30 border border-border/50">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-            scale: 120,
+            scale: 147,
           }}
         >
           <Geographies geography={geoUrl}>
@@ -188,7 +188,7 @@ export const StockWorldMap = () => {
         </AnimatePresence>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 gap-2">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {stocks.map((stock) => (
           <motion.div
             key={stock.symbol}
@@ -196,12 +196,12 @@ export const StockWorldMap = () => {
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
-            className="p-2 rounded-lg border bg-secondary/30 cursor-pointer hover-lift hover:border-primary/50"
+            className="p-3 rounded-lg border bg-secondary/30 cursor-pointer hover-lift hover:border-primary/50"
             onMouseEnter={() => setSelectedStock(stock)}
             onMouseLeave={() => setSelectedStock(null)}
           >
-            <div className="flex items-center gap-1 mb-0.5">
-              <span className="font-semibold text-xs">{stock.symbol}</span>
+            <div className="flex items-center gap-1 mb-1">
+              <span className="font-semibold text-sm">{stock.symbol}</span>
               {stock.isPositive ? (
                 <TrendingUp className="h-3 w-3 text-success" />
               ) : (
@@ -210,8 +210,8 @@ export const StockWorldMap = () => {
             </div>
             {stock.price && (
               <>
-                <div className="text-[10px] font-bold truncate">{stock.price}</div>
-                <div className={`text-[10px] ${stock.isPositive ? "text-success" : "text-danger"}`}>
+                <div className="text-xs font-bold">{stock.price}</div>
+                <div className={`text-xs ${stock.isPositive ? "text-success" : "text-danger"}`}>
                   {stock.isPositive ? "+" : ""}{stock.changePercent}%
                 </div>
               </>
