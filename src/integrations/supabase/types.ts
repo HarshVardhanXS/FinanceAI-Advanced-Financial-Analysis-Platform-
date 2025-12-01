@@ -44,6 +44,108 @@ export type Database = {
         }
         Relationships: []
       }
+      options_contracts: {
+        Row: {
+          contract_symbol: string
+          created_at: string | null
+          delta: number | null
+          expiration_date: string
+          gamma: number | null
+          id: string
+          implied_volatility: number | null
+          last_updated: string | null
+          option_type: string
+          premium: number
+          strike_price: number
+          theta: number | null
+          underlying_symbol: string
+          vega: number | null
+        }
+        Insert: {
+          contract_symbol: string
+          created_at?: string | null
+          delta?: number | null
+          expiration_date: string
+          gamma?: number | null
+          id?: string
+          implied_volatility?: number | null
+          last_updated?: string | null
+          option_type: string
+          premium: number
+          strike_price: number
+          theta?: number | null
+          underlying_symbol: string
+          vega?: number | null
+        }
+        Update: {
+          contract_symbol?: string
+          created_at?: string | null
+          delta?: number | null
+          expiration_date?: string
+          gamma?: number | null
+          id?: string
+          implied_volatility?: number | null
+          last_updated?: string | null
+          option_type?: string
+          premium?: number
+          strike_price?: number
+          theta?: number | null
+          underlying_symbol?: string
+          vega?: number | null
+        }
+        Relationships: []
+      }
+      options_trades: {
+        Row: {
+          contract_symbol: string
+          contracts: number
+          created_at: string | null
+          expiration_date: string
+          id: string
+          option_type: string
+          premium: number
+          status: string
+          strike_price: number
+          total_cost: number
+          trade_action: string
+          trade_date: string | null
+          underlying_symbol: string
+          user_id: string
+        }
+        Insert: {
+          contract_symbol: string
+          contracts: number
+          created_at?: string | null
+          expiration_date: string
+          id?: string
+          option_type: string
+          premium: number
+          status?: string
+          strike_price: number
+          total_cost: number
+          trade_action: string
+          trade_date?: string | null
+          underlying_symbol: string
+          user_id: string
+        }
+        Update: {
+          contract_symbol?: string
+          contracts?: number
+          created_at?: string | null
+          expiration_date?: string
+          id?: string
+          option_type?: string
+          premium?: number
+          status?: string
+          strike_price?: number
+          total_cost?: number
+          trade_action?: string
+          trade_date?: string | null
+          underlying_symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       paper_trades: {
         Row: {
           created_at: string | null

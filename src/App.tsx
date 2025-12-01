@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import StockBrowser from "./pages/StockBrowser";
+import OptionsTrading from "./pages/OptionsTrading";
 import WatchlistPage from "./pages/WatchlistPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -35,6 +36,7 @@ const App = () => (
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/stocks" element={<StockBrowser />} />
+                      <Route path="/options" element={<OptionsTrading />} />
                       <Route path="/portfolio" element={<PortfolioPage />} />
                       <Route path="/watchlist" element={<WatchlistPage />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />
