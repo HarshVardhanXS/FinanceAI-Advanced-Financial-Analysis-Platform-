@@ -1,4 +1,4 @@
-import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell, Search } from "lucide-react";
+import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell, Search, TrendingUp } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect } from "react";
 import {
@@ -72,6 +72,22 @@ export function AppSidebar() {
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/options"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-accent text-accent-foreground font-medium min-h-[44px]"
+                          : "hover:bg-accent/50 min-h-[44px]"
+                      }
+                      onClick={() => isMobile && setOpen(false)}
+                    >
+                      <TrendingUp className="h-5 w-5" />
+                      {!collapsed && <span>Options Trading</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <NavLink
