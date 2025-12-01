@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      paper_trades: {
+        Row: {
+          created_at: string | null
+          id: string
+          price: number
+          quantity: number
+          symbol: string
+          total_amount: number
+          trade_date: string | null
+          trade_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          price: number
+          quantity: number
+          symbol: string
+          total_amount: number
+          trade_date?: string | null
+          trade_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          price?: number
+          quantity?: number
+          symbol?: string
+          total_amount?: number
+          trade_date?: string | null
+          trade_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolios: {
         Row: {
           average_price: number
@@ -139,6 +175,42 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      stocks_browser: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          currency: string | null
+          exchange: string | null
+          id: string
+          last_updated: string | null
+          name: string
+          symbol: string
+          type: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          currency?: string | null
+          exchange?: string | null
+          id?: string
+          last_updated?: string | null
+          name: string
+          symbol: string
+          type?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          currency?: string | null
+          exchange?: string | null
+          id?: string
+          last_updated?: string | null
+          name?: string
+          symbol?: string
+          type?: string | null
         }
         Relationships: []
       }

@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import StockBrowser from "./pages/StockBrowser";
 import WatchlistPage from "./pages/WatchlistPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -33,6 +34,7 @@ const App = () => (
                   <div className="flex-1">
                     <Routes>
                       <Route path="/" element={<Index />} />
+                      <Route path="/stocks" element={<StockBrowser />} />
                       <Route path="/portfolio" element={<PortfolioPage />} />
                       <Route path="/watchlist" element={<WatchlistPage />} />
                       <Route path="/analytics" element={<AnalyticsPage />} />

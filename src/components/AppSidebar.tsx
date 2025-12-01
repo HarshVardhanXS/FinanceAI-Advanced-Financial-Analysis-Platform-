@@ -1,4 +1,4 @@
-import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell } from "lucide-react";
+import { Home, BarChart3, Wallet, Star, Settings, Shield, Bell, Search } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect } from "react";
 import {
@@ -17,6 +17,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const mainItems = [
   { title: "Dashboard", url: "/", icon: Home },
+  { title: "Stock Browser", url: "/stocks", icon: Search },
   { title: "Portfolio", url: "/portfolio", icon: Wallet },
   { title: "Watchlist", url: "/watchlist", icon: Star },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
