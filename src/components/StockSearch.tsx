@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Clock, TrendingUp, X } from "lucide-react";
+import { Search, Clock, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 interface StockSearchProps {
   onSelectStock: (symbol: string) => void;
 }
@@ -28,8 +29,11 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [searchResults, setSearchResults] = useState<typeof popularStocks>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
@@ -38,11 +42,46 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
     }
   }, []);
 
-  const filteredStocks = popularStocks.filter(
-    (stock) =>
-      stock.symbol.toLowerCase().includes(query.toLowerCase()) ||
-      stock.name.toLowerCase().includes(query.toLowerCase())
-  );
+  useEffect(() => {
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('search-stocks', {
+          body: { query }
+        });
+
+        if (error) throw error;
+
+        const results = (data?.stocks || []).map((stock: any) => ({
+          symbol: stock.symbol,
+          name: stock.name ?? stock.description ?? stock.symbol,
+        }));
+
+        setSearchResults(results);
+      } catch (error: any) {
+        console.error('Search error:', error);
+        toast({
+          title: 'Search failed',
+          description: error.message ?? 'Unable to search stocks right now.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [query, toast]);
+
+  const filteredStocks = query
+    ? searchResults
+    : popularStocks;
 
   const saveRecentSearch = (symbol: string) => {
     const updated = [symbol, ...recentSearches.filter(s => s !== symbol)].slice(0, MAX_RECENT_SEARCHES);
@@ -113,7 +152,11 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
             {query ? (
               // Search Results
               <>
-                {filteredStocks.length > 0 ? (
+                {isSearching ? (
+                  <div className="px-3 py-3 text-xs text-muted-foreground">
+                    Searching for stocks...
+                  </div>
+                ) : filteredStocks.length > 0 ? (
                   <div className="p-2">
                     <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground">
                       <TrendingUp className="h-3 w-3" />
