@@ -33,8 +33,8 @@ serve(async (req) => {
       );
     }
 
-    // Get detailed quotes for top 10 results
-    const topResults = searchData.result.slice(0, 10);
+    // Get detailed quotes for top 20 results to show more international listings
+    const topResults = searchData.result.slice(0, 20);
     const stocksWithPrices = await Promise.all(
       topResults.map(async (result: any) => {
         try {
@@ -42,27 +42,36 @@ serve(async (req) => {
           const quoteResponse = await fetch(quoteUrl);
           const quoteData = await quoteResponse.json();
 
+          // Extract exchange from displaySymbol (e.g., "HKEX:0700" -> "HKEX")
+          const exchangeCode = result.displaySymbol?.includes(':') 
+            ? result.displaySymbol.split(':')[0] 
+            : result.type || 'US';
+
           return {
             symbol: result.symbol,
             name: result.description,
+            displaySymbol: result.displaySymbol,
             price: quoteData.c?.toFixed(2) || "0.00",
             change: quoteData.d?.toFixed(2) || "0.00",
             changePercent: quoteData.dp?.toFixed(2) || "0.00",
             isPositive: (quoteData.d || 0) >= 0,
-            exchange: result.type,
+            exchange: exchangeCode,
+            type: result.type,
             currency: "USD",
-            country: result.displaySymbol?.includes(':') ? result.displaySymbol.split(':')[0] : 'US'
+            country: exchangeCode
           };
         } catch (error) {
           console.error(`Error fetching quote for ${result.symbol}:`, error);
           return {
             symbol: result.symbol,
             name: result.description,
+            displaySymbol: result.displaySymbol,
             price: "0.00",
             change: "0.00",
             changePercent: "0.00",
             isPositive: true,
-            exchange: result.type,
+            exchange: result.displaySymbol?.includes(':') ? result.displaySymbol.split(':')[0] : result.type,
+            type: result.type,
             currency: "USD"
           };
         }

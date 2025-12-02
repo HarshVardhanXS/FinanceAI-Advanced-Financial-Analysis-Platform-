@@ -1,24 +1,33 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Clock, TrendingUp } from "lucide-react";
+import { Search, Clock, TrendingUp, Globe2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 interface StockSearchProps {
   onSelectStock: (symbol: string) => void;
 }
 
-const popularStocks = [
-  { symbol: "AAPL", name: "Apple Inc." },
-  { symbol: "MSFT", name: "Microsoft Corporation" },
-  { symbol: "GOOGL", name: "Alphabet Inc." },
-  { symbol: "AMZN", name: "Amazon.com Inc." },
-  { symbol: "TSLA", name: "Tesla Inc." },
-  { symbol: "NVDA", name: "NVIDIA Corporation" },
-  { symbol: "META", name: "Meta Platforms Inc." },
-  { symbol: "BRK.B", name: "Berkshire Hathaway" }
+interface StockSearchResult {
+  symbol: string;
+  name: string;
+  exchange?: string;
+  displaySymbol?: string;
+  type?: string;
+}
+
+const popularStocks: StockSearchResult[] = [
+  { symbol: "AAPL", name: "Apple Inc.", exchange: "US" },
+  { symbol: "MSFT", name: "Microsoft Corporation", exchange: "US" },
+  { symbol: "GOOGL", name: "Alphabet Inc.", exchange: "US" },
+  { symbol: "AMZN", name: "Amazon.com Inc.", exchange: "US" },
+  { symbol: "TSLA", name: "Tesla Inc.", exchange: "US" },
+  { symbol: "NVDA", name: "NVIDIA Corporation", exchange: "US" },
+  { symbol: "META", name: "Meta Platforms Inc.", exchange: "US" },
+  { symbol: "BRK.B", name: "Berkshire Hathaway", exchange: "US" }
 ];
 
 const RECENT_SEARCHES_KEY = "stock_recent_searches";
@@ -29,7 +38,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [searchResults, setSearchResults] = useState<typeof popularStocks>([]);
+  const [searchResults, setSearchResults] = useState<StockSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,6 +70,9 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
         const results = (data?.stocks || []).map((stock: any) => ({
           symbol: stock.symbol,
           name: stock.name ?? stock.description ?? stock.symbol,
+          exchange: stock.exchange,
+          displaySymbol: stock.displaySymbol,
+          type: stock.type,
         }));
 
         setSearchResults(results);
@@ -129,7 +141,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
         <Input
           ref={inputRef}
-          placeholder="Search stocks..."
+          placeholder="Search stocks (e.g., Tencent, AAPL, 0700.HK)..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -165,7 +177,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                     <div className="space-y-1">
                       {filteredStocks.map((stock, index) => (
                         <button
-                          key={stock.symbol}
+                          key={`${stock.symbol}-${stock.exchange || index}`}
                           onClick={() => handleSelect(stock.symbol)}
                           className={`w-full text-left px-3 py-2.5 rounded-md transition-all duration-200 group ${
                             selectedIndex === index 
@@ -177,16 +189,29 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                             animation: "fade-slide-in 0.3s ease-out forwards"
                           }}
                         >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                                {stock.symbol}
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                                  {stock.symbol}
+                                </span>
+                                {stock.exchange && (
+                                  <Badge variant="secondary" className="text-xs font-mono">
+                                    <Globe2 className="h-3 w-3 mr-1" />
+                                    {stock.exchange}
+                                  </Badge>
+                                )}
                               </div>
                               <div className="text-sm text-muted-foreground truncate">
                                 {stock.name}
                               </div>
+                              {stock.displaySymbol && stock.displaySymbol !== stock.symbol && (
+                                <div className="text-xs text-muted-foreground/70 mt-0.5 font-mono">
+                                  {stock.displaySymbol}
+                                </div>
+                              )}
                             </div>
-                            <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                           </div>
                         </button>
                       ))}
