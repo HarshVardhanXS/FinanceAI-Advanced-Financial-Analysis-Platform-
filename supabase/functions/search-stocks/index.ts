@@ -47,15 +47,18 @@ serve(async (req) => {
             ? result.displaySymbol.split(':')[0] 
             : result.type || 'US';
 
-          // Fetch candle data for volume and profile for market cap in parallel
+          // Fetch candle data for volume, profile for market cap, and metrics for 52-week range in parallel
           const now = Math.floor(Date.now() / 1000);
           const yesterday = now - 86400;
           let volume = null;
           let marketCap = null;
+          let week52High = null;
+          let week52Low = null;
 
-          const [candleResult, profileResult] = await Promise.allSettled([
+          const [candleResult, profileResult, metricResult] = await Promise.allSettled([
             fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${result.symbol}&resolution=D&from=${yesterday}&to=${now}&token=${apiKey}`).then(r => r.json()),
-            fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${result.symbol}&token=${apiKey}`).then(r => r.json())
+            fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${result.symbol}&token=${apiKey}`).then(r => r.json()),
+            fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${result.symbol}&metric=all&token=${apiKey}`).then(r => r.json())
           ]);
 
           if (candleResult.status === 'fulfilled' && candleResult.value.v?.length > 0) {
@@ -64,6 +67,11 @@ serve(async (req) => {
 
           if (profileResult.status === 'fulfilled' && profileResult.value.marketCapitalization) {
             marketCap = profileResult.value.marketCapitalization;
+          }
+
+          if (metricResult.status === 'fulfilled' && metricResult.value.metric) {
+            week52High = metricResult.value.metric['52WeekHigh'];
+            week52Low = metricResult.value.metric['52WeekLow'];
           }
 
           return {
@@ -79,7 +87,9 @@ serve(async (req) => {
             currency: "USD",
             country: exchangeCode,
             volume: volume,
-            marketCap: marketCap
+            marketCap: marketCap,
+            week52High: week52High,
+            week52Low: week52Low
           };
         } catch (error) {
           console.error(`Error fetching quote for ${result.symbol}:`, error);

@@ -23,6 +23,8 @@ interface StockSearchResult {
   isPositive?: boolean;
   volume?: number | null;
   marketCap?: number | null;
+  week52High?: number | null;
+  week52Low?: number | null;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -85,6 +87,8 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           isPositive: stock.isPositive,
           volume: stock.volume,
           marketCap: stock.marketCap,
+          week52High: stock.week52High,
+          week52Low: stock.week52Low,
         }));
 
         setSearchResults(results);
@@ -224,11 +228,28 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                               )}
                             </div>
                             {stock.price && stock.price !== "0.00" ? (
-                              <div className="text-right flex-shrink-0 min-w-[100px]">
+                              <div className="text-right flex-shrink-0 min-w-[120px]">
                                 <div className="font-semibold text-foreground">${stock.price}</div>
                                 <div className={`text-xs font-medium ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                                   {stock.isPositive ? '+' : ''}{stock.change} ({stock.isPositive ? '+' : ''}{stock.changePercent}%)
                                 </div>
+                                {stock.week52High && stock.week52Low && (
+                                  <div className="mt-1">
+                                    <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
+                                      <span>${stock.week52Low.toFixed(0)}</span>
+                                      <span>${stock.week52High.toFixed(0)}</span>
+                                    </div>
+                                    <div className="h-1 bg-muted rounded-full overflow-hidden">
+                                      <div 
+                                        className="h-full bg-primary rounded-full"
+                                        style={{ 
+                                          width: `${Math.min(100, Math.max(0, ((parseFloat(stock.price) - stock.week52Low) / (stock.week52High - stock.week52Low)) * 100))}%` 
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground text-center mt-0.5">52W Range</div>
+                                  </div>
+                                )}
                                 <div className="flex gap-2 justify-end text-xs text-muted-foreground mt-0.5">
                                   {stock.marketCap && (
                                     <span>
