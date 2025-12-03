@@ -17,6 +17,10 @@ interface StockSearchResult {
   exchange?: string;
   displaySymbol?: string;
   type?: string;
+  price?: string;
+  change?: string;
+  changePercent?: string;
+  isPositive?: boolean;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -73,6 +77,10 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           exchange: stock.exchange,
           displaySymbol: stock.displaySymbol,
           type: stock.type,
+          price: stock.price,
+          change: stock.change,
+          changePercent: stock.changePercent,
+          isPositive: stock.isPositive,
         }));
 
         setSearchResults(results);
@@ -211,7 +219,16 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                 </div>
                               )}
                             </div>
-                            <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                            {stock.price && stock.price !== "0.00" ? (
+                              <div className="text-right flex-shrink-0">
+                                <div className="font-semibold text-foreground">${stock.price}</div>
+                                <div className={`text-xs font-medium ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                                  {stock.isPositive ? '+' : ''}{stock.change} ({stock.isPositive ? '+' : ''}{stock.changePercent}%)
+                                </div>
+                              </div>
+                            ) : (
+                              <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                            )}
                           </div>
                         </button>
                       ))}
