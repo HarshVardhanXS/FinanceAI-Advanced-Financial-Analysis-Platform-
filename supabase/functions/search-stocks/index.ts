@@ -47,6 +47,21 @@ serve(async (req) => {
             ? result.displaySymbol.split(':')[0] 
             : result.type || 'US';
 
+          // Fetch candle data for volume (last day)
+          const now = Math.floor(Date.now() / 1000);
+          const yesterday = now - 86400;
+          let volume = null;
+          try {
+            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${result.symbol}&resolution=D&from=${yesterday}&to=${now}&token=${apiKey}`;
+            const candleResponse = await fetch(candleUrl);
+            const candleData = await candleResponse.json();
+            if (candleData.v && candleData.v.length > 0) {
+              volume = candleData.v[candleData.v.length - 1];
+            }
+          } catch (e) {
+            console.error(`Error fetching volume for ${result.symbol}:`, e);
+          }
+
           return {
             symbol: result.symbol,
             name: result.description,
@@ -58,7 +73,8 @@ serve(async (req) => {
             exchange: exchangeCode,
             type: result.type,
             currency: "USD",
-            country: exchangeCode
+            country: exchangeCode,
+            volume: volume
           };
         } catch (error) {
           console.error(`Error fetching quote for ${result.symbol}:`, error);
