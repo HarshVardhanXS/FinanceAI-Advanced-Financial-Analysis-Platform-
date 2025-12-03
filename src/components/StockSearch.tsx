@@ -22,6 +22,7 @@ interface StockSearchResult {
   changePercent?: string;
   isPositive?: boolean;
   volume?: number | null;
+  marketCap?: number | null;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -83,6 +84,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           changePercent: stock.changePercent,
           isPositive: stock.isPositive,
           volume: stock.volume,
+          marketCap: stock.marketCap,
         }));
 
         setSearchResults(results);
@@ -222,20 +224,31 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                               )}
                             </div>
                             {stock.price && stock.price !== "0.00" ? (
-                              <div className="text-right flex-shrink-0">
+                              <div className="text-right flex-shrink-0 min-w-[100px]">
                                 <div className="font-semibold text-foreground">${stock.price}</div>
                                 <div className={`text-xs font-medium ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                                   {stock.isPositive ? '+' : ''}{stock.change} ({stock.isPositive ? '+' : ''}{stock.changePercent}%)
                                 </div>
-                                {stock.volume && (
-                                  <div className="text-xs text-muted-foreground mt-0.5">
-                                    Vol: {stock.volume >= 1000000 
-                                      ? `${(stock.volume / 1000000).toFixed(1)}M` 
-                                      : stock.volume >= 1000 
-                                        ? `${(stock.volume / 1000).toFixed(1)}K` 
-                                        : stock.volume.toLocaleString()}
-                                  </div>
-                                )}
+                                <div className="flex gap-2 justify-end text-xs text-muted-foreground mt-0.5">
+                                  {stock.marketCap && (
+                                    <span>
+                                      MCap: {stock.marketCap >= 1000000 
+                                        ? `${(stock.marketCap / 1000000).toFixed(1)}T` 
+                                        : stock.marketCap >= 1000 
+                                          ? `${(stock.marketCap / 1000).toFixed(1)}B` 
+                                          : `${stock.marketCap.toFixed(0)}M`}
+                                    </span>
+                                  )}
+                                  {stock.volume && (
+                                    <span>
+                                      Vol: {stock.volume >= 1000000 
+                                        ? `${(stock.volume / 1000000).toFixed(1)}M` 
+                                        : stock.volume >= 1000 
+                                          ? `${(stock.volume / 1000).toFixed(1)}K` 
+                                          : stock.volume.toLocaleString()}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             ) : (
                               <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />

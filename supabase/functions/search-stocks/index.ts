@@ -47,19 +47,23 @@ serve(async (req) => {
             ? result.displaySymbol.split(':')[0] 
             : result.type || 'US';
 
-          // Fetch candle data for volume (last day)
+          // Fetch candle data for volume and profile for market cap in parallel
           const now = Math.floor(Date.now() / 1000);
           const yesterday = now - 86400;
           let volume = null;
-          try {
-            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${result.symbol}&resolution=D&from=${yesterday}&to=${now}&token=${apiKey}`;
-            const candleResponse = await fetch(candleUrl);
-            const candleData = await candleResponse.json();
-            if (candleData.v && candleData.v.length > 0) {
-              volume = candleData.v[candleData.v.length - 1];
-            }
-          } catch (e) {
-            console.error(`Error fetching volume for ${result.symbol}:`, e);
+          let marketCap = null;
+
+          const [candleResult, profileResult] = await Promise.allSettled([
+            fetch(`https://finnhub.io/api/v1/stock/candle?symbol=${result.symbol}&resolution=D&from=${yesterday}&to=${now}&token=${apiKey}`).then(r => r.json()),
+            fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${result.symbol}&token=${apiKey}`).then(r => r.json())
+          ]);
+
+          if (candleResult.status === 'fulfilled' && candleResult.value.v?.length > 0) {
+            volume = candleResult.value.v[candleResult.value.v.length - 1];
+          }
+
+          if (profileResult.status === 'fulfilled' && profileResult.value.marketCapitalization) {
+            marketCap = profileResult.value.marketCapitalization;
           }
 
           return {
@@ -74,7 +78,8 @@ serve(async (req) => {
             type: result.type,
             currency: "USD",
             country: exchangeCode,
-            volume: volume
+            volume: volume,
+            marketCap: marketCap
           };
         } catch (error) {
           console.error(`Error fetching quote for ${result.symbol}:`, error);
