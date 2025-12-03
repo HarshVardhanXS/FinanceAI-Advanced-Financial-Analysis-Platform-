@@ -21,6 +21,7 @@ interface StockSearchResult {
   change?: string;
   changePercent?: string;
   isPositive?: boolean;
+  volume?: number | null;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -81,6 +82,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           change: stock.change,
           changePercent: stock.changePercent,
           isPositive: stock.isPositive,
+          volume: stock.volume,
         }));
 
         setSearchResults(results);
@@ -225,6 +227,15 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                 <div className={`text-xs font-medium ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                                   {stock.isPositive ? '+' : ''}{stock.change} ({stock.isPositive ? '+' : ''}{stock.changePercent}%)
                                 </div>
+                                {stock.volume && (
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    Vol: {stock.volume >= 1000000 
+                                      ? `${(stock.volume / 1000000).toFixed(1)}M` 
+                                      : stock.volume >= 1000 
+                                        ? `${(stock.volume / 1000).toFixed(1)}K` 
+                                        : stock.volume.toLocaleString()}
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
