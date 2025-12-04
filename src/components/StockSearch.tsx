@@ -29,6 +29,8 @@ interface StockSearchResult {
   peRatio?: number | null;
   dividendYield?: number | null;
   eps?: number | null;
+  revenuePerShare?: number | null;
+  profitMargin?: number | null;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -96,6 +98,8 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           peRatio: stock.peRatio,
           dividendYield: stock.dividendYield,
           eps: stock.eps,
+          revenuePerShare: stock.revenuePerShare,
+          profitMargin: stock.profitMargin,
         }));
 
         setSearchResults(results);
@@ -348,6 +352,42 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                             <p><span className="text-green-500">●</span> ≥3%: Strong income stock</p>
                                             <p><span className="text-amber-500">●</span> 1.5-3%: Moderate yield</p>
                                             <p><span className="text-muted-foreground">●</span> &lt;1.5%: Growth-focused</p>
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {stock.revenuePerShare != null && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="text-muted-foreground cursor-help">
+                                            Rev/S: ${stock.revenuePerShare.toFixed(2)}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[200px]">
+                                          <p className="font-medium">Revenue Per Share</p>
+                                          <p className="text-xs text-muted-foreground">Total revenue divided by shares. Higher = more sales per share owned.</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {stock.profitMargin != null && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className={`cursor-help ${
+                                            stock.profitMargin >= 20 ? 'text-green-500' : 
+                                            stock.profitMargin >= 10 ? 'text-amber-500' : 
+                                            stock.profitMargin >= 0 ? 'text-muted-foreground' : 'text-red-400'
+                                          }`}>
+                                            Margin: {stock.profitMargin.toFixed(1)}%
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[220px]">
+                                          <p className="font-medium">Net Profit Margin</p>
+                                          <p className="text-xs text-muted-foreground mb-1">% of revenue kept as profit after all expenses.</p>
+                                          <div className="text-xs space-y-0.5">
+                                            <p><span className="text-green-500">●</span> ≥20%: Excellent profitability</p>
+                                            <p><span className="text-amber-500">●</span> 10-20%: Good profitability</p>
+                                            <p><span className="text-muted-foreground">●</span> 0-10%: Modest margins</p>
+                                            <p><span className="text-red-400">●</span> &lt;0%: Operating at a loss</p>
                                           </div>
                                         </TooltipContent>
                                       </Tooltip>
