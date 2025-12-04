@@ -72,6 +72,8 @@ serve(async (req) => {
           let peRatio = null;
           let dividendYield = null;
           let eps = null;
+          let revenuePerShare = null;
+          let profitMargin = null;
 
           if (metricResult.status === 'fulfilled' && metricResult.value.metric) {
             week52High = metricResult.value.metric['52WeekHigh'];
@@ -79,6 +81,8 @@ serve(async (req) => {
             peRatio = metricResult.value.metric['peBasicExclExtraTTM'] || metricResult.value.metric['peTTM'];
             dividendYield = metricResult.value.metric['dividendYieldIndicatedAnnual'];
             eps = metricResult.value.metric['epsBasicExclExtraItemsTTM'] || metricResult.value.metric['epsTTM'];
+            revenuePerShare = metricResult.value.metric['revenuePerShareTTM'];
+            profitMargin = metricResult.value.metric['netProfitMarginTTM'];
           }
 
           return {
@@ -99,7 +103,9 @@ serve(async (req) => {
             week52Low: week52Low,
             peRatio: peRatio,
             dividendYield: dividendYield,
-            eps: eps
+            eps: eps,
+            revenuePerShare: revenuePerShare,
+            profitMargin: profitMargin
           };
         } catch (error) {
           console.error(`Error fetching quote for ${result.symbol}:`, error);
