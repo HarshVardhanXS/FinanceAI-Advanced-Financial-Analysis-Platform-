@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Clock, TrendingUp, Globe2 } from "lucide-react";
+import { Search, Clock, TrendingUp, Globe2, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 interface StockSearchProps {
@@ -256,47 +257,103 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                     <div className="text-[10px] text-muted-foreground text-center mt-0.5">52W Range</div>
                                   </div>
                                 )}
-                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 justify-end text-xs text-muted-foreground mt-0.5">
-                                  {stock.marketCap && (
-                                    <span>
-                                      MCap: {stock.marketCap >= 1000000 
-                                        ? `${(stock.marketCap / 1000000).toFixed(1)}T` 
-                                        : stock.marketCap >= 1000 
-                                          ? `${(stock.marketCap / 1000).toFixed(1)}B` 
-                                          : `${stock.marketCap.toFixed(0)}M`}
-                                    </span>
-                                  )}
-                                  {stock.volume && (
-                                    <span>
-                                      Vol: {stock.volume >= 1000000 
-                                        ? `${(stock.volume / 1000000).toFixed(1)}M` 
-                                        : stock.volume >= 1000 
-                                          ? `${(stock.volume / 1000).toFixed(1)}K` 
-                                          : stock.volume.toLocaleString()}
-                                    </span>
-                                  )}
-                                  {stock.peRatio && (
-                                    <span className={
-                                      stock.peRatio < 15 ? 'text-green-500' : 
-                                      stock.peRatio > 30 ? 'text-red-400' : 'text-muted-foreground'
-                                    }>
-                                      P/E: {stock.peRatio.toFixed(1)}
-                                    </span>
-                                  )}
-                                  {stock.eps != null && (
-                                    <span className={stock.eps >= 0 ? 'text-green-500' : 'text-red-400'}>
-                                      EPS: ${stock.eps.toFixed(2)}
-                                    </span>
-                                  )}
-                                  {stock.dividendYield != null && stock.dividendYield > 0 && (
-                                    <span className={
-                                      stock.dividendYield >= 3 ? 'text-green-500' : 
-                                      stock.dividendYield >= 1.5 ? 'text-amber-500' : 'text-muted-foreground'
-                                    }>
-                                      Div: {stock.dividendYield.toFixed(2)}%
-                                    </span>
-                                  )}
-                                </div>
+                                <TooltipProvider delayDuration={200}>
+                                  <div className="flex flex-wrap gap-x-2 gap-y-0.5 justify-end text-xs mt-0.5">
+                                    {stock.marketCap && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="text-muted-foreground cursor-help">
+                                            MCap: {stock.marketCap >= 1000000 
+                                              ? `${(stock.marketCap / 1000000).toFixed(1)}T` 
+                                              : stock.marketCap >= 1000 
+                                                ? `${(stock.marketCap / 1000).toFixed(1)}B` 
+                                                : `${stock.marketCap.toFixed(0)}M`}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[200px]">
+                                          <p className="font-medium">Market Cap</p>
+                                          <p className="text-xs text-muted-foreground">Total company value. Large cap (&gt;$10B) = stable, Small cap (&lt;$2B) = higher growth potential but riskier.</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {stock.volume && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="text-muted-foreground cursor-help">
+                                            Vol: {stock.volume >= 1000000 
+                                              ? `${(stock.volume / 1000000).toFixed(1)}M` 
+                                              : stock.volume >= 1000 
+                                                ? `${(stock.volume / 1000).toFixed(1)}K` 
+                                                : stock.volume.toLocaleString()}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[200px]">
+                                          <p className="font-medium">Trading Volume</p>
+                                          <p className="text-xs text-muted-foreground">Shares traded today. Higher volume = better liquidity, easier to buy/sell without affecting price.</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {stock.peRatio && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className={`cursor-help ${
+                                            stock.peRatio < 15 ? 'text-green-500' : 
+                                            stock.peRatio > 30 ? 'text-red-400' : 'text-muted-foreground'
+                                          }`}>
+                                            P/E: {stock.peRatio.toFixed(1)}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[220px]">
+                                          <p className="font-medium">Price-to-Earnings Ratio</p>
+                                          <p className="text-xs text-muted-foreground mb-1">How much investors pay per $1 of earnings.</p>
+                                          <div className="text-xs space-y-0.5">
+                                            <p><span className="text-green-500">●</span> &lt;15: Potentially undervalued</p>
+                                            <p><span className="text-muted-foreground">●</span> 15-30: Fair value</p>
+                                            <p><span className="text-red-400">●</span> &gt;30: Expensive/growth stock</p>
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {stock.eps != null && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className={`cursor-help ${stock.eps >= 0 ? 'text-green-500' : 'text-red-400'}`}>
+                                            EPS: ${stock.eps.toFixed(2)}
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[200px]">
+                                          <p className="font-medium">Earnings Per Share</p>
+                                          <p className="text-xs text-muted-foreground mb-1">Company profit divided by shares outstanding.</p>
+                                          <div className="text-xs space-y-0.5">
+                                            <p><span className="text-green-500">●</span> Positive: Company is profitable</p>
+                                            <p><span className="text-red-400">●</span> Negative: Company losing money</p>
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {stock.dividendYield != null && stock.dividendYield > 0 && (
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className={`cursor-help ${
+                                            stock.dividendYield >= 3 ? 'text-green-500' : 
+                                            stock.dividendYield >= 1.5 ? 'text-amber-500' : 'text-muted-foreground'
+                                          }`}>
+                                            Div: {stock.dividendYield.toFixed(2)}%
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="left" className="max-w-[220px]">
+                                          <p className="font-medium">Dividend Yield</p>
+                                          <p className="text-xs text-muted-foreground mb-1">Annual dividend as % of stock price.</p>
+                                          <div className="text-xs space-y-0.5">
+                                            <p><span className="text-green-500">●</span> ≥3%: Strong income stock</p>
+                                            <p><span className="text-amber-500">●</span> 1.5-3%: Moderate yield</p>
+                                            <p><span className="text-muted-foreground">●</span> &lt;1.5%: Growth-focused</p>
+                                          </div>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                  </div>
+                                </TooltipProvider>
                               </div>
                             ) : (
                               <TrendingUp className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
