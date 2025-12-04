@@ -71,12 +71,14 @@ serve(async (req) => {
 
           let peRatio = null;
           let dividendYield = null;
+          let eps = null;
 
           if (metricResult.status === 'fulfilled' && metricResult.value.metric) {
             week52High = metricResult.value.metric['52WeekHigh'];
             week52Low = metricResult.value.metric['52WeekLow'];
             peRatio = metricResult.value.metric['peBasicExclExtraTTM'] || metricResult.value.metric['peTTM'];
             dividendYield = metricResult.value.metric['dividendYieldIndicatedAnnual'];
+            eps = metricResult.value.metric['epsBasicExclExtraItemsTTM'] || metricResult.value.metric['epsTTM'];
           }
 
           return {
@@ -96,7 +98,8 @@ serve(async (req) => {
             week52High: week52High,
             week52Low: week52Low,
             peRatio: peRatio,
-            dividendYield: dividendYield
+            dividendYield: dividendYield,
+            eps: eps
           };
         } catch (error) {
           console.error(`Error fetching quote for ${result.symbol}:`, error);

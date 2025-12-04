@@ -27,6 +27,7 @@ interface StockSearchResult {
   week52Low?: number | null;
   peRatio?: number | null;
   dividendYield?: number | null;
+  eps?: number | null;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -93,6 +94,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           week52Low: stock.week52Low,
           peRatio: stock.peRatio,
           dividendYield: stock.dividendYield,
+          eps: stock.eps,
         }));
 
         setSearchResults(results);
@@ -275,6 +277,9 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                   )}
                                   {stock.peRatio && (
                                     <span>P/E: {stock.peRatio.toFixed(1)}</span>
+                                  )}
+                                  {stock.eps != null && (
+                                    <span>EPS: ${stock.eps.toFixed(2)}</span>
                                   )}
                                   {stock.dividendYield != null && stock.dividendYield > 0 && (
                                     <span>Div: {stock.dividendYield.toFixed(2)}%</span>
