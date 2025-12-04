@@ -276,13 +276,25 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                     </span>
                                   )}
                                   {stock.peRatio && (
-                                    <span>P/E: {stock.peRatio.toFixed(1)}</span>
+                                    <span className={
+                                      stock.peRatio < 15 ? 'text-green-500' : 
+                                      stock.peRatio > 30 ? 'text-red-400' : 'text-muted-foreground'
+                                    }>
+                                      P/E: {stock.peRatio.toFixed(1)}
+                                    </span>
                                   )}
                                   {stock.eps != null && (
-                                    <span>EPS: ${stock.eps.toFixed(2)}</span>
+                                    <span className={stock.eps >= 0 ? 'text-green-500' : 'text-red-400'}>
+                                      EPS: ${stock.eps.toFixed(2)}
+                                    </span>
                                   )}
                                   {stock.dividendYield != null && stock.dividendYield > 0 && (
-                                    <span>Div: {stock.dividendYield.toFixed(2)}%</span>
+                                    <span className={
+                                      stock.dividendYield >= 3 ? 'text-green-500' : 
+                                      stock.dividendYield >= 1.5 ? 'text-amber-500' : 'text-muted-foreground'
+                                    }>
+                                      Div: {stock.dividendYield.toFixed(2)}%
+                                    </span>
                                   )}
                                 </div>
                               </div>
