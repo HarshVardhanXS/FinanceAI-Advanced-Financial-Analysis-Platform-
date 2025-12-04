@@ -25,6 +25,8 @@ interface StockSearchResult {
   marketCap?: number | null;
   week52High?: number | null;
   week52Low?: number | null;
+  peRatio?: number | null;
+  dividendYield?: number | null;
 }
 
 const popularStocks: StockSearchResult[] = [
@@ -89,6 +91,8 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
           marketCap: stock.marketCap,
           week52High: stock.week52High,
           week52Low: stock.week52Low,
+          peRatio: stock.peRatio,
+          dividendYield: stock.dividendYield,
         }));
 
         setSearchResults(results);
@@ -250,7 +254,7 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                     <div className="text-[10px] text-muted-foreground text-center mt-0.5">52W Range</div>
                                   </div>
                                 )}
-                                <div className="flex gap-2 justify-end text-xs text-muted-foreground mt-0.5">
+                                <div className="flex flex-wrap gap-x-2 gap-y-0.5 justify-end text-xs text-muted-foreground mt-0.5">
                                   {stock.marketCap && (
                                     <span>
                                       MCap: {stock.marketCap >= 1000000 
@@ -268,6 +272,12 @@ export const StockSearch = ({ onSelectStock }: StockSearchProps) => {
                                           ? `${(stock.volume / 1000).toFixed(1)}K` 
                                           : stock.volume.toLocaleString()}
                                     </span>
+                                  )}
+                                  {stock.peRatio && (
+                                    <span>P/E: {stock.peRatio.toFixed(1)}</span>
+                                  )}
+                                  {stock.dividendYield != null && stock.dividendYield > 0 && (
+                                    <span>Div: {stock.dividendYield.toFixed(2)}%</span>
                                   )}
                                 </div>
                               </div>
