@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, TrendingUp, TrendingDown, Lock, Globe } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Lock, Globe, Flame, ArrowUpCircle, ArrowDownCircle, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface Stock {
   symbol: string;
@@ -22,7 +23,10 @@ interface Stock {
   exchange?: string;
   currency?: string;
   country?: string;
+  volume?: number;
 }
+
+type CategoryFilter = "all" | "gainers" | "losers" | "active";
 
 export default function StockBrowser() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,8 +36,31 @@ export default function StockBrowser() {
   const [quantity, setQuantity] = useState("1");
   const [tradeLoading, setTradeLoading] = useState(false);
   const [selectedExchange, setSelectedExchange] = useState("US");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const { toast } = useToast();
   const { role, hasAccess } = useUserRole();
+
+  const filteredStocks = useMemo(() => {
+    if (categoryFilter === "all") return stocks;
+    
+    const sortedStocks = [...stocks];
+    
+    switch (categoryFilter) {
+      case "gainers":
+        return sortedStocks
+          .filter(s => s.isPositive)
+          .sort((a, b) => parseFloat(b.changePercent) - parseFloat(a.changePercent));
+      case "losers":
+        return sortedStocks
+          .filter(s => !s.isPositive)
+          .sort((a, b) => parseFloat(a.changePercent) - parseFloat(b.changePercent));
+      case "active":
+        return sortedStocks
+          .sort((a, b) => (b.volume || 0) - (a.volume || 0));
+      default:
+        return stocks;
+    }
+  }, [stocks, categoryFilter]);
 
   const exchanges = [
     { code: "US", name: "United States", flag: "🇺🇸" },
@@ -188,6 +215,33 @@ export default function StockBrowser() {
           </Tabs>
         </Card>
 
+        {/* Category Filters */}
+        <div className="mb-6">
+          <ToggleGroup 
+            type="single" 
+            value={categoryFilter} 
+            onValueChange={(value) => value && setCategoryFilter(value as CategoryFilter)}
+            className="justify-start flex-wrap"
+          >
+            <ToggleGroupItem value="all" aria-label="All stocks" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              All Stocks
+            </ToggleGroupItem>
+            <ToggleGroupItem value="gainers" aria-label="Top gainers" className="gap-2 data-[state=on]:bg-green-500/20 data-[state=on]:text-green-500">
+              <ArrowUpCircle className="h-4 w-4" />
+              Top Gainers
+            </ToggleGroupItem>
+            <ToggleGroupItem value="losers" aria-label="Top losers" className="gap-2 data-[state=on]:bg-red-500/20 data-[state=on]:text-red-500">
+              <ArrowDownCircle className="h-4 w-4" />
+              Top Losers
+            </ToggleGroupItem>
+            <ToggleGroupItem value="active" aria-label="Most active" className="gap-2 data-[state=on]:bg-orange-500/20 data-[state=on]:text-orange-500">
+              <Flame className="h-4 w-4" />
+              Most Active
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+
         {loading && (
           <Card className="p-12 text-center">
             <div className="flex flex-col items-center gap-4">
@@ -197,16 +251,23 @@ export default function StockBrowser() {
           </Card>
         )}
 
-        {!loading && stocks.length > 0 && (
+        {!loading && filteredStocks.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">
-                {searchQuery ? `Search Results (${stocks.length})` : `${exchanges.find(e => e.code === selectedExchange)?.name} Stocks (${stocks.length})`}
+                {searchQuery 
+                  ? `Search Results (${filteredStocks.length})` 
+                  : `${exchanges.find(e => e.code === selectedExchange)?.name} ${
+                      categoryFilter === "gainers" ? "Top Gainers" :
+                      categoryFilter === "losers" ? "Top Losers" :
+                      categoryFilter === "active" ? "Most Active" : "Stocks"
+                    } (${filteredStocks.length})`
+                }
               </h2>
               <p className="text-sm text-muted-foreground">Click on any stock to trade</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {stocks.map((stock) => (
+              {filteredStocks.map((stock) => (
               <Dialog key={stock.symbol}>
                 <DialogTrigger asChild>
                   <Card 
@@ -302,6 +363,15 @@ export default function StockBrowser() {
             ))}
             </div>
           </div>
+        )}
+
+        {!loading && stocks.length > 0 && filteredStocks.length === 0 && (
+          <Card className="p-12 text-center">
+            <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">
+              No {categoryFilter === "gainers" ? "gaining" : categoryFilter === "losers" ? "losing" : ""} stocks found for this filter.
+            </p>
+          </Card>
         )}
 
         {!loading && stocks.length === 0 && (
