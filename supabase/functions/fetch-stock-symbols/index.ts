@@ -26,8 +26,8 @@ serve(async (req) => {
 
     console.log(`Found ${symbolsData.length} stocks for ${exchange} exchange`);
 
-    // Get quotes for a batch of stocks (limiting to avoid rate limits)
-    const batchSize = 50;
+    // Get quotes for a batch of stocks (increased to 120 for more interactive display)
+    const batchSize = 120;
     const symbols = symbolsData.slice(0, batchSize);
     
     const stocksWithPrices = await Promise.all(
