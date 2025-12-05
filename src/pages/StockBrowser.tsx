@@ -37,6 +37,8 @@ export default function StockBrowser() {
 
   const exchanges = [
     { code: "US", name: "United States", flag: "🇺🇸" },
+    { code: "NS", name: "India (NSE)", flag: "🇮🇳" },
+    { code: "BO", name: "India (BSE)", flag: "🇮🇳" },
     { code: "TO", name: "Toronto", flag: "🇨🇦" },
     { code: "L", name: "London", flag: "🇬🇧" },
     { code: "F", name: "Frankfurt", flag: "🇩🇪" },
@@ -175,9 +177,9 @@ export default function StockBrowser() {
           </div>
 
           <Tabs value={selectedExchange} onValueChange={setSelectedExchange} className="w-full">
-            <TabsList className="grid grid-cols-5 lg:grid-cols-10 w-full">
+            <TabsList className="flex flex-wrap gap-1 h-auto p-1">
               {exchanges.map((exchange) => (
-                <TabsTrigger key={exchange.code} value={exchange.code} className="text-xs">
+                <TabsTrigger key={exchange.code} value={exchange.code} className="text-xs px-3 py-2">
                   <span className="mr-1">{exchange.flag}</span>
                   {exchange.code}
                 </TabsTrigger>
@@ -201,92 +203,102 @@ export default function StockBrowser() {
               <h2 className="text-xl font-semibold">
                 {searchQuery ? `Search Results (${stocks.length})` : `${exchanges.find(e => e.code === selectedExchange)?.name} Stocks (${stocks.length})`}
               </h2>
+              <p className="text-sm text-muted-foreground">Click on any stock to trade</p>
             </div>
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {stocks.map((stock) => (
-              <Card key={stock.symbol} className="p-4 hover:border-primary transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold">{stock.symbol}</h3>
-                      <span className="text-sm text-muted-foreground">{stock.name}</span>
+              <Dialog key={stock.symbol}>
+                <DialogTrigger asChild>
+                  <Card 
+                    className="p-4 hover:border-primary hover:shadow-lg transition-all cursor-pointer group"
+                    onClick={() => setSelectedStock(stock)}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold truncate group-hover:text-primary transition-colors">{stock.symbol}</h3>
+                        <p className="text-xs text-muted-foreground truncate">{stock.name}</p>
+                      </div>
                       {stock.exchange && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-[10px] ml-2 shrink-0">
                           {stock.exchange}
                         </Badge>
                       )}
                     </div>
-                    {stock.country && (
-                      <p className="text-xs text-muted-foreground">{stock.country}</p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">${stock.price}</div>
-                      <div className={`flex items-center gap-1 text-sm ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                        {stock.isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                        <span>{stock.change} ({stock.changePercent}%)</span>
+                    <div className="flex items-end justify-between">
+                      <div className="text-xl font-bold">${stock.price}</div>
+                      <div className={`flex items-center gap-1 text-xs ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        {stock.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                        <span>{stock.changePercent}%</span>
                       </div>
                     </div>
-
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          onClick={() => setSelectedStock(stock)}
-                          disabled={!canTrade}
-                        >
-                          {canTrade ? "Trade" : <><Lock className="h-4 w-4 mr-2" /> Premium</>}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Trade {selectedStock?.symbol}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <div>
-                            <Label>Current Price</Label>
-                            <p className="text-2xl font-bold">${selectedStock?.price}</p>
-                          </div>
-                          <div>
-                            <Label htmlFor="quantity">Quantity</Label>
-                            <Input
-                              id="quantity"
-                              type="number"
-                              min="1"
-                              value={quantity}
-                              onChange={(e) => setQuantity(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <Label>Total Amount</Label>
-                            <p className="text-xl font-semibold">
-                              ${(parseFloat(quantity) * parseFloat(selectedStock?.price || "0")).toFixed(2)}
-                            </p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button 
-                              onClick={() => handleTrade('buy')} 
-                              disabled={tradeLoading}
-                              className="flex-1"
-                            >
-                              Buy
-                            </Button>
-                            <Button 
-                              onClick={() => handleTrade('sell')} 
-                              disabled={tradeLoading}
-                              variant="secondary"
-                              className="flex-1"
-                            >
-                              Sell
-                            </Button>
-                          </div>
+                    {!canTrade && (
+                      <div className="mt-2 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                        <Lock className="h-3 w-3" />
+                        <span>Premium to trade</span>
+                      </div>
+                    )}
+                  </Card>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Trade {selectedStock?.symbol}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">{selectedStock?.name}</p>
+                        <p className="text-2xl font-bold">${selectedStock?.price}</p>
+                      </div>
+                      <div className={`text-right ${selectedStock?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        <p className="text-sm">{selectedStock?.change}</p>
+                        <p className="text-lg font-semibold">{selectedStock?.changePercent}%</p>
+                      </div>
+                    </div>
+                    {canTrade ? (
+                      <>
+                        <div>
+                          <Label htmlFor="quantity">Quantity</Label>
+                          <Input
+                            id="quantity"
+                            type="number"
+                            min="1"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                          />
                         </div>
-                      </DialogContent>
-                    </Dialog>
+                        <div>
+                          <Label>Total Amount</Label>
+                          <p className="text-xl font-semibold">
+                            ${(parseFloat(quantity) * parseFloat(selectedStock?.price || "0")).toFixed(2)}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={() => handleTrade('buy')} 
+                            disabled={tradeLoading}
+                            className="flex-1"
+                          >
+                            Buy
+                          </Button>
+                          <Button 
+                            onClick={() => handleTrade('sell')} 
+                            disabled={tradeLoading}
+                            variant="secondary"
+                            className="flex-1"
+                          >
+                            Sell
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-4">
+                        <Lock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-muted-foreground">Upgrade to Premium to trade this stock</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Card>
+                </DialogContent>
+              </Dialog>
             ))}
             </div>
           </div>
