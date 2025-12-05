@@ -1,15 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, TrendingUp, TrendingDown, Lock, Globe, Flame, ArrowUpCircle, ArrowDownCircle, BarChart3 } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Globe, Flame, ArrowUpCircle, ArrowDownCircle, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useUserRole } from "@/hooks/useUserRole";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -29,16 +27,13 @@ interface Stock {
 type CategoryFilter = "all" | "gainers" | "losers" | "active";
 
 export default function StockBrowser() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-  const [quantity, setQuantity] = useState("1");
-  const [tradeLoading, setTradeLoading] = useState(false);
   const [selectedExchange, setSelectedExchange] = useState("US");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const { toast } = useToast();
-  const { role, hasAccess } = useUserRole();
 
   const filteredStocks = useMemo(() => {
     if (categoryFilter === "all") return stocks;
@@ -123,55 +118,6 @@ export default function StockBrowser() {
     }
   };
 
-  const handleTrade = async (type: 'buy' | 'sell') => {
-    if (!selectedStock || !hasAccess('premium')) {
-      toast({
-        title: "Upgrade Required",
-        description: "Premium membership required for trading",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setTradeLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const qty = parseFloat(quantity);
-      const price = parseFloat(selectedStock.price);
-      const totalAmount = qty * price;
-
-      const { error } = await supabase.from('paper_trades').insert({
-        user_id: user.id,
-        symbol: selectedStock.symbol,
-        trade_type: type,
-        quantity: qty,
-        price: price,
-        total_amount: totalAmount
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Trade Executed",
-        description: `${type === 'buy' ? 'Bought' : 'Sold'} ${qty} shares of ${selectedStock.symbol}`
-      });
-      
-      setSelectedStock(null);
-      setQuantity("1");
-    } catch (error: any) {
-      toast({
-        title: "Trade failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setTradeLoading(false);
-    }
-  };
-
-  const canTrade = hasAccess('premium');
 
   return (
     <div className="min-h-screen bg-background">
@@ -264,103 +210,35 @@ export default function StockBrowser() {
                     } (${filteredStocks.length})`
                 }
               </h2>
-              <p className="text-sm text-muted-foreground">Click on any stock to trade</p>
+              <p className="text-sm text-muted-foreground">Click on any stock for details</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {filteredStocks.map((stock) => (
-              <Dialog key={stock.symbol}>
-                <DialogTrigger asChild>
-                  <Card 
-                    className="p-4 hover:border-primary hover:shadow-lg transition-all cursor-pointer group"
-                    onClick={() => setSelectedStock(stock)}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-bold truncate group-hover:text-primary transition-colors">{stock.symbol}</h3>
-                        <p className="text-xs text-muted-foreground truncate">{stock.name}</p>
-                      </div>
-                      {stock.exchange && (
-                        <Badge variant="secondary" className="text-[10px] ml-2 shrink-0">
-                          {stock.exchange}
-                        </Badge>
-                      )}
+                <Card 
+                  key={stock.symbol}
+                  className="p-4 hover:border-primary hover:shadow-lg transition-all cursor-pointer group"
+                  onClick={() => navigate(`/stocks/${stock.symbol}`)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold truncate group-hover:text-primary transition-colors">{stock.symbol}</h3>
+                      <p className="text-xs text-muted-foreground truncate">{stock.name}</p>
                     </div>
-                    <div className="flex items-end justify-between">
-                      <div className="text-xl font-bold">${stock.price}</div>
-                      <div className={`flex items-center gap-1 text-xs ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                        {stock.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                        <span>{stock.changePercent}%</span>
-                      </div>
-                    </div>
-                    {!canTrade && (
-                      <div className="mt-2 flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                        <Lock className="h-3 w-3" />
-                        <span>Premium to trade</span>
-                      </div>
-                    )}
-                  </Card>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Trade {selectedStock?.symbol}</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{selectedStock?.name}</p>
-                        <p className="text-2xl font-bold">${selectedStock?.price}</p>
-                      </div>
-                      <div className={`text-right ${selectedStock?.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                        <p className="text-sm">{selectedStock?.change}</p>
-                        <p className="text-lg font-semibold">{selectedStock?.changePercent}%</p>
-                      </div>
-                    </div>
-                    {canTrade ? (
-                      <>
-                        <div>
-                          <Label htmlFor="quantity">Quantity</Label>
-                          <Input
-                            id="quantity"
-                            type="number"
-                            min="1"
-                            value={quantity}
-                            onChange={(e) => setQuantity(e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          <Label>Total Amount</Label>
-                          <p className="text-xl font-semibold">
-                            ${(parseFloat(quantity) * parseFloat(selectedStock?.price || "0")).toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => handleTrade('buy')} 
-                            disabled={tradeLoading}
-                            className="flex-1"
-                          >
-                            Buy
-                          </Button>
-                          <Button 
-                            onClick={() => handleTrade('sell')} 
-                            disabled={tradeLoading}
-                            variant="secondary"
-                            className="flex-1"
-                          >
-                            Sell
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center py-4">
-                        <Lock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-muted-foreground">Upgrade to Premium to trade this stock</p>
-                      </div>
+                    {stock.exchange && (
+                      <Badge variant="secondary" className="text-[10px] ml-2 shrink-0">
+                        {stock.exchange}
+                      </Badge>
                     )}
                   </div>
-                </DialogContent>
-              </Dialog>
-            ))}
+                  <div className="flex items-end justify-between">
+                    <div className="text-xl font-bold">${stock.price}</div>
+                    <div className={`flex items-center gap-1 text-xs ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                      {stock.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      <span>{stock.changePercent}%</span>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         )}
