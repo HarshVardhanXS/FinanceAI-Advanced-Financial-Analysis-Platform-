@@ -49,7 +49,8 @@ serve(async (req) => {
               exchange: exchange,
               currency: stock.currency || "USD",
               country: exchange,
-              type: stock.type
+              type: stock.type,
+              volume: quoteData.v || 0
             };
           }
           return null;
