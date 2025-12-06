@@ -1,9 +1,21 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const stockDetailsSchema = z.object({
+  symbol: z.string()
+    .trim()
+    .min(1, "Symbol is required")
+    .max(15, "Symbol too long")
+    .regex(/^[A-Z0-9.:\-]+$/i, "Invalid symbol format")
+    .transform(s => s.toUpperCase()),
+  period: z.enum(['1D', '1W', '1M', '3M', '1Y']).optional().default('1D')
+});
 
 // Get time range parameters for candle data
 function getTimeRange(period: string): { from: number; to: number; resolution: string } {
@@ -47,7 +59,19 @@ serve(async (req) => {
   }
 
   try {
-    const { symbol, period = '1D' } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = stockDetailsSchema.safeParse(body);
+    if (!parseResult.success) {
+      console.log('Validation failed:', parseResult.error.issues);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request parameters' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+    
+    const { symbol, period } = parseResult.data;
     console.log('Fetching stock details for:', symbol, 'period:', period);
 
     const apiKey = Deno.env.get('FINNHUB_API_KEY');
