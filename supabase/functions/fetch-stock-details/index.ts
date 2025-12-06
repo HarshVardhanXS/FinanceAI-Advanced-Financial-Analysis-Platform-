@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,6 +18,31 @@ const stockDetailsSchema = z.object({
   period: z.enum(['1D', '1W', '1M', '3M', '1Y']).optional().default('1D')
 });
 
+// Rate limiting config: 100 requests per minute
+const RATE_LIMIT_MAX = 100;
+const RATE_LIMIT_ENDPOINT = 'fetch-stock-details';
+
+async function checkRateLimit(identifier: string): Promise<boolean> {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  
+  const { data, error } = await supabase.rpc('check_rate_limit', {
+    p_identifier: identifier,
+    p_endpoint: RATE_LIMIT_ENDPOINT,
+    p_max_requests: RATE_LIMIT_MAX,
+    p_window_seconds: 60
+  });
+  
+  if (error) {
+    console.error('Rate limit check error:', error);
+    return true;
+  }
+  
+  return data === true;
+}
+
 // Get time range parameters for candle data
 function getTimeRange(period: string): { from: number; to: number; resolution: string } {
   const now = Math.floor(Date.now() / 1000);
@@ -24,15 +50,15 @@ function getTimeRange(period: string): { from: number; to: number; resolution: s
   
   switch (period) {
     case '1D':
-      return { from: now - day, to: now, resolution: '5' }; // 5 min intervals
+      return { from: now - day, to: now, resolution: '5' };
     case '1W':
-      return { from: now - (7 * day), to: now, resolution: '30' }; // 30 min intervals
+      return { from: now - (7 * day), to: now, resolution: '30' };
     case '1M':
-      return { from: now - (30 * day), to: now, resolution: 'D' }; // Daily
+      return { from: now - (30 * day), to: now, resolution: 'D' };
     case '3M':
-      return { from: now - (90 * day), to: now, resolution: 'D' }; // Daily
+      return { from: now - (90 * day), to: now, resolution: 'D' };
     case '1Y':
-      return { from: now - (365 * day), to: now, resolution: 'W' }; // Weekly
+      return { from: now - (365 * day), to: now, resolution: 'W' };
     default:
       return { from: now - day, to: now, resolution: '5' };
   }
@@ -59,6 +85,21 @@ serve(async (req) => {
   }
 
   try {
+    // Get client identifier
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    
+    // Check rate limit
+    const allowed = await checkRateLimit(clientIP);
+    if (!allowed) {
+      console.log('Rate limit exceeded for:', clientIP);
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 }
+      );
+    }
+
     const body = await req.json();
     
     // Validate input
