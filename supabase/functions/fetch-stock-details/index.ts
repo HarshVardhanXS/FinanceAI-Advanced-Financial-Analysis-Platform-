@@ -5,14 +5,50 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Get time range parameters for candle data
+function getTimeRange(period: string): { from: number; to: number; resolution: string } {
+  const now = Math.floor(Date.now() / 1000);
+  const day = 86400;
+  
+  switch (period) {
+    case '1D':
+      return { from: now - day, to: now, resolution: '5' }; // 5 min intervals
+    case '1W':
+      return { from: now - (7 * day), to: now, resolution: '30' }; // 30 min intervals
+    case '1M':
+      return { from: now - (30 * day), to: now, resolution: 'D' }; // Daily
+    case '3M':
+      return { from: now - (90 * day), to: now, resolution: 'D' }; // Daily
+    case '1Y':
+      return { from: now - (365 * day), to: now, resolution: 'W' }; // Weekly
+    default:
+      return { from: now - day, to: now, resolution: '5' };
+  }
+}
+
+// Format timestamp to readable time/date
+function formatTimestamp(timestamp: number, period: string): string {
+  const date = new Date(timestamp * 1000);
+  
+  if (period === '1D') {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  } else if (period === '1W') {
+    return date.toLocaleDateString('en-US', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+  } else if (period === '1M' || period === '3M') {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { symbol } = await req.json();
-    console.log('Fetching stock details for:', symbol);
+    const { symbol, period = '1D' } = await req.json();
+    console.log('Fetching stock details for:', symbol, 'period:', period);
 
     const apiKey = Deno.env.get('FINNHUB_API_KEY');
     if (!apiKey) {
@@ -39,21 +75,43 @@ serve(async (req) => {
 
     const metrics = metricsData.metric || {};
 
-    // Generate chart data (using current price with simulated historical variation)
-    const currentPrice = quoteData.c || 0;
-    const chartData = [];
-    const times = ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"];
+    // Fetch candle data for chart
+    const { from, to, resolution } = getTimeRange(period);
+    const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${to}&token=${apiKey}`;
+    console.log('Fetching candles with resolution:', resolution);
     
-    for (let i = 0; i < times.length; i++) {
-      const variation = (Math.random() - 0.5) * (currentPrice * 0.02); // ±1% variation
-      const baseVariation = (i / times.length) * (quoteData.d || 0); // Trend towards current change
-      chartData.push({
-        time: times[i],
-        value: Number((currentPrice - (quoteData.d || 0) + baseVariation + variation).toFixed(2))
-      });
+    const candleResponse = await fetch(candleUrl);
+    const candleData = await candleResponse.json();
+    console.log('Candle data status:', candleData.s, 'points:', candleData.c?.length || 0);
+
+    let chartData = [];
+    
+    if (candleData.s === 'ok' && candleData.c && candleData.t) {
+      // Use real candle data - use closing prices
+      chartData = candleData.t.map((timestamp: number, index: number) => ({
+        time: formatTimestamp(timestamp, period),
+        value: Number(candleData.c[index].toFixed(2)),
+        open: candleData.o[index],
+        high: candleData.h[index],
+        low: candleData.l[index],
+        volume: candleData.v[index]
+      }));
+    } else {
+      // Fallback to simulated data if candle API fails
+      console.log('Using fallback simulated data');
+      const currentPrice = quoteData.c || 0;
+      const times = ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00"];
+      
+      for (let i = 0; i < times.length; i++) {
+        const variation = (Math.random() - 0.5) * (currentPrice * 0.02);
+        const baseVariation = (i / times.length) * (quoteData.d || 0);
+        chartData.push({
+          time: times[i],
+          value: Number((currentPrice - (quoteData.d || 0) + baseVariation + variation).toFixed(2))
+        });
+      }
+      chartData[chartData.length - 1].value = currentPrice;
     }
-    // Ensure last point is current price
-    chartData[chartData.length - 1].value = currentPrice;
 
     const stockDetails = {
       symbol: symbol,
