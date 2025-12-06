@@ -1,10 +1,36 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Rate limiting config: 20 requests per minute (AI endpoints are expensive)
+const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_ENDPOINT = 'analyze-stock';
+
+async function checkRateLimit(identifier: string): Promise<boolean> {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+  
+  const { data, error } = await supabase.rpc('check_rate_limit', {
+    p_identifier: identifier,
+    p_endpoint: RATE_LIMIT_ENDPOINT,
+    p_max_requests: RATE_LIMIT_MAX,
+    p_window_seconds: 60
+  });
+  
+  if (error) {
+    console.error('Rate limit check error:', error);
+    return true;
+  }
+  
+  return data === true;
+}
 
 const symbolSchema = z.object({
   symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters')
@@ -16,6 +42,21 @@ serve(async (req) => {
   }
 
   try {
+    // Get client identifier
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    
+    // Check rate limit
+    const allowed = await checkRateLimit(clientIP);
+    if (!allowed) {
+      console.log('Rate limit exceeded for:', clientIP);
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 }
+      );
+    }
+
     const body = await req.json();
     const validation = symbolSchema.safeParse(body);
     
