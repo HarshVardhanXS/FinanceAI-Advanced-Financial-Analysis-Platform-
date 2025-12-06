@@ -56,6 +56,7 @@ export default function StockDetail() {
   
   const [stock, setStock] = useState<StockDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(false);
   const [chartPeriod, setChartPeriod] = useState<"1D" | "1W" | "1M" | "3M" | "1Y">("1D");
   const [quantity, setQuantity] = useState("1");
   const [tradeLoading, setTradeLoading] = useState(false);
@@ -64,15 +65,26 @@ export default function StockDetail() {
 
   useEffect(() => {
     if (symbol) {
-      fetchStockDetails(symbol);
+      fetchStockDetails(symbol, chartPeriod, true);
     }
   }, [symbol]);
 
-  const fetchStockDetails = async (sym: string) => {
-    setLoading(true);
+  useEffect(() => {
+    if (symbol && stock) {
+      fetchStockDetails(symbol, chartPeriod, false);
+    }
+  }, [chartPeriod]);
+
+  const fetchStockDetails = async (sym: string, period: string, fullLoad: boolean) => {
+    if (fullLoad) {
+      setLoading(true);
+    } else {
+      setChartLoading(true);
+    }
+    
     try {
       const { data, error } = await supabase.functions.invoke('fetch-stock-details', {
-        body: { symbol: sym }
+        body: { symbol: sym, period }
       });
 
       if (error) throw error;
@@ -85,6 +97,7 @@ export default function StockDetail() {
       });
     } finally {
       setLoading(false);
+      setChartLoading(false);
     }
   };
 
@@ -341,7 +354,12 @@ export default function StockDetail() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[300px] relative">
+              {chartLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10">
+                  <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+                </div>
+              )}
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stock.chartData || []}>
                   <defs>
@@ -351,8 +369,13 @@ export default function StockDetail() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="time" className="text-xs" />
-                  <YAxis domain={['auto', 'auto']} className="text-xs" />
+                  <XAxis 
+                    dataKey="time" 
+                    className="text-xs" 
+                    tick={{ fontSize: 10 }}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis domain={['auto', 'auto']} className="text-xs" tick={{ fontSize: 10 }} />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--card))', 
