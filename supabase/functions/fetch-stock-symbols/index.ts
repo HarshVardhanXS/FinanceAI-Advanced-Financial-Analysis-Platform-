@@ -48,6 +48,15 @@ serve(async (req) => {
     const symbolsResponse = await fetch(symbolsUrl);
     const symbolsData = await symbolsResponse.json();
 
+    // Handle case where API doesn't return an array (error response or empty)
+    if (!Array.isArray(symbolsData)) {
+      console.log(`API returned non-array for ${exchange}:`, symbolsData);
+      return new Response(
+        JSON.stringify({ stocks: [], error: 'No stocks found for this exchange' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log(`Found ${symbolsData.length} stocks for ${exchange} exchange`);
 
     // Get quotes for a batch of stocks (increased to 120 for more interactive display)
