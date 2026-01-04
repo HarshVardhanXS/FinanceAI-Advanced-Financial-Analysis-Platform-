@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
+import logo from "@/assets/logo.png";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -120,13 +121,11 @@ const Auth = () => {
       <div className="w-full max-w-md space-y-8 animate-fade-in">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
-              <TrendingUp className="h-8 w-8 text-primary-foreground" />
-            </div>
-            <h1 className="text-4xl font-heading font-bold gradient-text">FinSight</h1>
+            <img src={logo} alt="RV College of Engineering" className="h-16 w-auto" />
           </div>
+          <h1 className="text-3xl font-heading font-bold gradient-text">FinSight</h1>
           <p className="text-muted-foreground">
-            Minor Project - Financial Analytics Platform
+            Minor Project Website
           </p>
         </div>
 
