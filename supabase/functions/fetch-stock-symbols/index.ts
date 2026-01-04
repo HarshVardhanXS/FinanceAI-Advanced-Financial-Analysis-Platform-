@@ -51,16 +51,19 @@ serve(async (req) => {
     // Handle case where API doesn't return an array (error response or empty)
     if (!Array.isArray(symbolsData)) {
       console.log(`API returned non-array for ${exchange}:`, symbolsData);
+      const errorMessage = symbolsData?.error?.includes('limit') 
+        ? 'API rate limit reached. Please wait a moment and try again.'
+        : 'No stocks found for this exchange';
       return new Response(
-        JSON.stringify({ stocks: [], error: 'No stocks found for this exchange' }),
+        JSON.stringify({ stocks: [], error: errorMessage, rateLimited: symbolsData?.error?.includes('limit') }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     console.log(`Found ${symbolsData.length} stocks for ${exchange} exchange`);
 
-    // Get quotes for a batch of stocks (increased to 120 for more interactive display)
-    const batchSize = 120;
+    // Reduced batch size to avoid hitting API rate limits (Finnhub free tier: 60 calls/min)
+    const batchSize = 30;
     const symbols = symbolsData.slice(0, batchSize);
     
     const stocksWithPrices = await Promise.all(
