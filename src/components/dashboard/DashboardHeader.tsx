@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, LogOut, Shield, LogIn } from "lucide-react";
+import { LogOut, Shield, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StockSearch } from "@/components/StockSearch";
 import { AuthDialog } from "@/components/AuthDialog";
+import logo from "@/assets/logo.png";
 
 export const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -60,14 +61,12 @@ export const DashboardHeader = () => {
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <SidebarTrigger className="min-h-[44px] min-w-[44px]" />
-            <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
-              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
+            <img src={logo} alt="RV College of Engineering" className="h-10 sm:h-12 w-auto" />
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent truncate">
                 FinSight
               </h1>
-              <p className="text-xs text-muted-foreground hidden lg:block">Minor Project Platform</p>
+              <p className="text-xs text-muted-foreground hidden lg:block">Minor Project Website</p>
             </div>
           </div>
 
