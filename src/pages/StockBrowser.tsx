@@ -84,6 +84,15 @@ export default function StockBrowser() {
       });
 
       if (error) throw error;
+      
+      if (data.rateLimited) {
+        toast({
+          title: "API Rate Limit",
+          description: "Finnhub API limit reached. Please wait a moment and try again.",
+          variant: "destructive"
+        });
+      }
+      
       setStocks(data.stocks || []);
     } catch (error: any) {
       toast({
