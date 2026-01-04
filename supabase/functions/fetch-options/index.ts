@@ -1,9 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const symbolSchema = z.object({
+  symbol: z.string()
+    .trim()
+    .min(1, 'Symbol is required')
+    .max(10, 'Symbol must be 10 characters or less')
+    .regex(/^[A-Z0-9.]+$/, 'Symbol must contain only uppercase letters, numbers, and periods')
+    .transform(val => val.toUpperCase())
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,7 +22,19 @@ serve(async (req) => {
   }
 
   try {
-    const { symbol } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validation = symbolSchema.safeParse(body);
+    if (!validation.success) {
+      console.log('Validation failed:', validation.error.errors);
+      return new Response(
+        JSON.stringify({ error: 'Invalid input: ' + validation.error.errors[0].message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+    
+    const { symbol } = validation.data;
     console.log('Fetching options for symbol:', symbol);
 
     const apiKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
@@ -20,7 +43,7 @@ serve(async (req) => {
     }
 
     // Get current stock price for calculating ITM/OTM
-    const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
+    const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(symbol)}&apikey=${apiKey}`;
     const quoteResponse = await fetch(quoteUrl);
     const quoteData = await quoteResponse.json();
     
@@ -97,9 +120,8 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'An error occurred processing your request' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
