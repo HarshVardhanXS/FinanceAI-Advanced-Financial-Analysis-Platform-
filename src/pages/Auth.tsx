@@ -123,10 +123,10 @@ const Auth = () => {
             <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
               <TrendingUp className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="text-4xl font-heading font-bold gradient-text">FinanceAI</h1>
+            <h1 className="text-4xl font-heading font-bold gradient-text">FinSight</h1>
           </div>
           <p className="text-muted-foreground">
-            AI-powered financial analysis platform
+            Minor Project - Financial Analytics Platform
           </p>
         </div>
 

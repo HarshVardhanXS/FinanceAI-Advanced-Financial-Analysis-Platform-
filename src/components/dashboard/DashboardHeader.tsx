@@ -65,9 +65,9 @@ export const DashboardHeader = () => {
             </div>
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent truncate">
-                FinanceAI
+                FinSight
               </h1>
-              <p className="text-xs text-muted-foreground hidden lg:block">Advanced Financial Analysis Platform</p>
+              <p className="text-xs text-muted-foreground hidden lg:block">Minor Project Platform</p>
             </div>
           </div>
 
