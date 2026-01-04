@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, Send, User, Loader2, Sparkles } from "lucide-react";
+import { Bot, Send, User, Loader2, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Message {
@@ -135,14 +135,30 @@ export const FinanceChatbot = () => {
   return (
     <Card className="glass-card border-primary/20 flex flex-col h-[600px]">
       <div className="p-4 border-b border-border/50">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
-            <Bot className="h-5 w-5 text-primary-foreground" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-primary rounded-lg shadow-glow-primary">
+              <Bot className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="text-lg font-heading font-bold gradient-text">FinanceAI Assistant</h2>
+              <p className="text-xs text-muted-foreground">Powered by AI • Ask anything about finance</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-heading font-bold gradient-text">FinanceAI Assistant</h2>
-            <p className="text-xs text-muted-foreground">Powered by AI • Ask anything about finance</p>
-          </div>
+          {messages.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMessages([{
+                role: "assistant",
+                content: "Hello! I'm FinanceAI, your intelligent financial advisor. I can help you with stock analysis, portfolio strategies, market insights, and investment education. What would you like to know today?"
+              }])}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Clear
+            </Button>
+          )}
         </div>
       </div>
 
