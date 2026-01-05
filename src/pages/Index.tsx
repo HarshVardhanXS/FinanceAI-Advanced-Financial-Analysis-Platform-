@@ -9,10 +9,19 @@ import { MarketOverview } from "@/components/dashboard/MarketOverview";
 import { ReportGenerator } from "@/components/dashboard/ReportGenerator";
 import { StockWorldMap } from "@/components/dashboard/StockWorldMap";
 
+interface MarketIndex {
+  name: string;
+  value: string;
+  change: string;
+  changePercent: string;
+  isPositive: boolean;
+}
+
 const Index = () => {
   const [selectedStock, setSelectedStock] = useState<string>("AAPL");
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [marketIndices, setMarketIndices] = useState<MarketIndex[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +42,43 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Fetch market data for sharing with AI components
+  useEffect(() => {
+    const fetchMarketData = async () => {
+      const symbols = ['SPY', 'DIA', 'QQQ'];
+      const names = ['S&P 500', 'DOW JONES', 'NASDAQ'];
+      const newData: MarketIndex[] = [];
+
+      for (let i = 0; i < symbols.length; i++) {
+        try {
+          const { data, error } = await supabase.functions.invoke('fetch-stock-data', {
+            body: { symbol: symbols[i] }
+          });
+
+          if (!error && data && !data.error) {
+            newData.push({
+              name: names[i],
+              value: `$${data.price}`,
+              change: data.isPositive ? `+${data.change}` : data.change,
+              changePercent: data.isPositive ? `+${data.changePercent}%` : `${data.changePercent}%`,
+              isPositive: data.isPositive
+            });
+          }
+        } catch (e) {
+          console.error(`Error fetching ${names[i]}:`, e);
+        }
+      }
+
+      if (newData.length > 0) {
+        setMarketIndices(newData);
+      }
+    };
+
+    fetchMarketData();
+    const interval = setInterval(fetchMarketData, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -50,6 +96,8 @@ const Index = () => {
     );
   }
 
+  const marketData = { indices: marketIndices };
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -66,11 +114,11 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <StockGrid selectedStock={selectedStock} onSelectStock={setSelectedStock} />
-            <ReportGenerator selectedStock={selectedStock} />
+            <ReportGenerator selectedStock={selectedStock} marketData={marketData} />
           </div>
           
           <div className="space-y-4 sm:space-y-6">
-            <AIInsights selectedStock={selectedStock} />
+            <AIInsights selectedStock={selectedStock} marketData={marketData} />
           </div>
         </div>
       </main>
