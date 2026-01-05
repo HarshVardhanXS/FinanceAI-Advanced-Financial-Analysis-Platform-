@@ -33,7 +33,9 @@ async function checkRateLimit(identifier: string): Promise<boolean> {
 }
 
 const symbolSchema = z.object({
-  symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters')
+  symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters'),
+  marketContext: z.string().optional(),
+  requestType: z.string().optional(),
 });
 
 serve(async (req) => {
@@ -67,7 +69,7 @@ serve(async (req) => {
       );
     }
     
-    const { symbol } = validation.data;
+    const { symbol, marketContext, requestType } = validation.data;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const finnhubKey = Deno.env.get('FINNHUB_API_KEY');
 
@@ -100,9 +102,21 @@ serve(async (req) => {
       }
     }
 
-    const prompt = stockContext 
-      ? `${stockContext}\nBased on this real-time data, provide detailed analysis and insights for ${symbol}.`
-      : `Provide detailed analysis and insights for ${symbol} stock.`;
+    // Include market context if provided from dashboard
+    let fullContext = stockContext;
+    if (marketContext) {
+      fullContext += `\n\nCurrent Market Overview:\n${marketContext}`;
+    }
+
+    const prompt = requestType === 'dashboard-insights'
+      ? `${fullContext}\n\nBased on the current market conditions and real-time data, provide a concise but insightful analysis for ${symbol}. Focus on:
+1. How ${symbol} is performing relative to the overall market
+2. Key technical signals (momentum, volume trends)
+3. Potential catalysts or risks in the near term
+Keep the response under 200 words but make it actionable.`
+      : fullContext 
+        ? `${fullContext}\nBased on this real-time data, provide detailed analysis and insights for ${symbol}.`
+        : `Provide detailed analysis and insights for ${symbol} stock.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

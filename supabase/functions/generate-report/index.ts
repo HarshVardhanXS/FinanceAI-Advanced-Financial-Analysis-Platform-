@@ -33,7 +33,9 @@ async function checkRateLimit(identifier: string): Promise<boolean> {
 }
 
 const symbolSchema = z.object({
-  symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters')
+  symbol: z.string().trim().min(1).max(5).regex(/^[A-Z]+$/, 'Stock symbol must contain only uppercase letters'),
+  marketContext: z.string().optional(),
+  includeMarketData: z.boolean().optional(),
 });
 
 serve(async (req) => {
@@ -67,13 +69,18 @@ serve(async (req) => {
       );
     }
     
-    const { symbol } = validation.data;
+    const { symbol, marketContext, includeMarketData } = validation.data;
     console.log("Generating report for:", symbol);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
+
+    // Build comprehensive prompt with market data
+    const marketSection = marketContext 
+      ? `\n\nCURRENT MARKET DATA FROM DASHBOARD:\n${marketContext}`
+      : '';
 
     // Generate comprehensive report using Lovable AI
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -88,19 +95,46 @@ serve(async (req) => {
           {
             role: "system",
             content:
-              "You are a senior financial analyst creating detailed investment reports. Include executive summary, technical analysis, fundamental analysis, risk assessment, and recommendations.",
+              "You are a senior financial analyst at a top investment bank creating detailed, professional investment reports. Your reports are used by institutional investors and must be comprehensive, data-driven, and actionable. Format with clear sections and bullet points.",
           },
           {
             role: "user",
-            content: `Generate a comprehensive financial analysis report for ${symbol}. Include:
-1. Executive Summary
-2. Current Market Position
-3. Technical Indicators Analysis
-4. Price Trends & Volume Analysis
-5. Risk Assessment
-6. Investment Recommendation
+            content: `Generate a comprehensive financial analysis report for ${symbol}.${marketSection}
 
-Format it as a professional report with clear sections.`,
+REQUIRED SECTIONS:
+
+1. EXECUTIVE SUMMARY
+   - Key findings in 3-4 bullet points
+   - Overall recommendation (Buy/Hold/Sell with conviction level)
+
+2. MARKET CONTEXT
+   - How ${symbol} relates to current market conditions
+   - Sector performance analysis
+   ${includeMarketData ? '- Compare against the market indices data provided' : ''}
+
+3. TECHNICAL ANALYSIS
+   - Price trend analysis (short, medium, long-term)
+   - Key support and resistance levels
+   - Volume analysis and momentum indicators
+   - Moving average analysis (50-day, 200-day)
+
+4. FUNDAMENTAL OVERVIEW
+   - Key valuation metrics
+   - Growth prospects
+   - Competitive positioning
+
+5. RISK ASSESSMENT
+   - Primary risk factors (3-5 key risks)
+   - Risk mitigation considerations
+   - Volatility analysis
+
+6. INVESTMENT RECOMMENDATION
+   - Clear action recommendation
+   - Target price range
+   - Time horizon
+   - Position sizing suggestion
+
+Format it as a professional report with clear sections using headers and bullet points.`,
           },
         ],
       }),
