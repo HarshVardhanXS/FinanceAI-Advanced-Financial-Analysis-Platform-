@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import Watermark from "@/components/Watermark";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
@@ -25,6 +26,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <Watermark />
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
