@@ -51,37 +51,66 @@ FinSight delivers **interactive dashboards**, **real-time financial insights**, 
 
 FinSight is built using cutting-edge web technologies:
 
-- **Frontend Framework**: [Next.js](https://nextjs.org/) (React)
-- **Language**: TypeScript  
-- **Styling**: Tailwind CSS  
-- **State Management**: Redux Toolkit  
-- **Routing**: React Router (integrated with Next.js)  
-- **Real-Time Communication**: WebSockets (Socket.io)  
-- **Data Visualization**: Chart.js / Recharts  
-- **Auth**: JWT-based Authentication  
+Frontend:
+
+Next.js and React for component-based UI and routing
+
+TypeScript for type safety
+
+Tailwind CSS, shadcn/ui, and Radix UI for responsive and accessible UI components
+
+Recharts / Chart.js for financial data visualization
+
+State Management:
+
+Zustand for global application state handling
+
+Forms & Validation:
+
+React Hook Form for form handling
+
+Zod for schema-based input validation
+
+AI Module:
+
+Custom AI service layer for prompt construction
+
+LLM API integration for financial insight generation
+
+Post-processing logic for summarization and formatting
+
+Data Processing:
+
+CSV and Excel parsers for structured data ingestion
+
+Data transformation and aggregation utilities
+
+Communication:
+
+REST APIs for client–server interaction
+
+WebSockets for real-time updates
+
+Authentication & Security:
+
+JWT (JSON Web Tokens) for authentication
+
+Role-Based Access Control (RBAC) for authorization
+
+Tooling & Build:
+
+Node.js runtime
+
+npm / Bun for dependency management
+
+ESLint and Prettier for code quality
 
 ---
 
 ## 🏗️ Architecture Diagram
 
-```mermaid
-flowchart LR
-    subgraph Client["Frontend (Next.js + TypeScript)"]
-        UI["UI Components (Tailwind CSS)"]
-        State["Redux Toolkit"]
-        Router["React Router"]
-        Hooks["Custom Hooks (API & Data)"]
-    end
+<img width="766" height="711" alt="Architecture Diagram" src="https://github.com/user-attachments/assets/e3f0397e-73e6-4f51-bf0d-df7f6fed8446" />
 
-    subgraph Server["Backend (REST API / WebSocket Server)"]
-        Auth["JWT Authentication"]
-        API["RESTful Endpoints"]
-        WS["WebSocket Service"]
-        DB["Database (Financial Data)"]
-    end
-
-    UI --> State
-    State --> API
     Router --> UI
     Hooks --> API
     API --> DB
