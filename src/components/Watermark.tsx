@@ -21,8 +21,11 @@ const Watermark = () => {
             {cols.map((col) => (
               <span
                 key={col}
-                className="text-2xl md:text-4xl lg:text-5xl font-heading font-bold text-primary/[0.07] dark:text-primary/[0.12] px-8 md:px-16"
-                style={{ letterSpacing: '0.05em' }}
+                className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-primary/[0.15] dark:text-primary/[0.20] px-8 md:px-16 uppercase tracking-wider"
+                style={{ 
+                  letterSpacing: '0.1em',
+                  textShadow: '0 0 20px hsl(var(--primary) / 0.1)'
+                }}
               >
                 {watermarkText}
               </span>
