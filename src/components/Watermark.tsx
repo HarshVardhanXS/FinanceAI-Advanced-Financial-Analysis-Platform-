@@ -9,7 +9,7 @@ const Watermark = () => {
     <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden select-none">
       {/* Repeating diagonal pattern */}
       <div 
-        className="absolute inset-0 flex flex-col justify-around"
+        className="absolute inset-0 flex flex-col justify-around animate-watermark-float"
         style={{ transform: 'rotate(-15deg) scale(1.5)', transformOrigin: 'center center' }}
       >
         {rows.map((row) => (
