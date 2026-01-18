@@ -1,5 +1,5 @@
 const Watermark = () => {
-  const watermarkText = "Harsh & Soubhagaya";
+  const watermarkText = "Harsh & Shoubhagya";
   
   // Create multiple rows for the repeating pattern
   const rows = Array.from({ length: 8 }, (_, i) => i);
@@ -34,7 +34,7 @@ const Watermark = () => {
       {/* Corner attribution */}
       <div className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border/50">
         <span className="text-xs font-medium text-muted-foreground">
-          By <span className="text-primary font-semibold">Harsh & Soubhagaya</span>
+          By <span className="text-primary font-semibold">Harsh & Shoubhagya</span>
         </span>
       </div>
     </div>
