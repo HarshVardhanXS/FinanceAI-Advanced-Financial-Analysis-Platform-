@@ -21,10 +21,14 @@ const Watermark = () => {
             {cols.map((col) => (
               <span
                 key={col}
-                className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-primary/[0.15] dark:text-primary/[0.20] px-8 md:px-16 uppercase tracking-wider"
+                className="text-3xl md:text-5xl lg:text-6xl font-heading font-black px-8 md:px-16 uppercase tracking-wider"
                 style={{ 
                   letterSpacing: '0.1em',
-                  textShadow: '0 0 20px hsl(var(--primary) / 0.1)'
+                  background: 'linear-gradient(135deg, hsl(189 94% 53% / 0.18) 0%, hsl(189 80% 40% / 0.12) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  textShadow: '0 0 30px hsl(189 94% 53% / 0.15)'
                 }}
               >
                 {watermarkText}
