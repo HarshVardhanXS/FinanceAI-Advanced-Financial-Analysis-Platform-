@@ -17,6 +17,7 @@ import PortfolioPage from "./pages/PortfolioPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import AlertsPage from "./pages/AlertsPage";
 import AIAnalysis from "./pages/AIAnalysis";
+import MLTraining from "./pages/MLTraining";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
                       <Route path="/analytics" element={<AnalyticsPage />} />
                       <Route path="/alerts" element={<AlertsPage />} />
                       <Route path="/ai" element={<AIAnalysis />} />
+                      <Route path="/ml-training" element={<MLTraining />} />
                       <Route path="/admin" element={<Admin />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
