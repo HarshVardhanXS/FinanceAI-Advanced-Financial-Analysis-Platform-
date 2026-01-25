@@ -17,11 +17,21 @@ interface MarketIndex {
   isPositive: boolean;
 }
 
+interface WatchlistStock {
+  symbol: string;
+  name: string;
+  price: string;
+  change: string;
+  changePercent: string;
+  isPositive: boolean;
+}
+
 const Index = () => {
   const [selectedStock, setSelectedStock] = useState<string>("AAPL");
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [marketIndices, setMarketIndices] = useState<MarketIndex[]>([]);
+  const [watchlistStocks, setWatchlistStocks] = useState<WatchlistStock[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +89,56 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch watchlist stocks for AI insights
+  useEffect(() => {
+    const fetchWatchlist = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: watchlist, error } = await supabase
+        .from('watchlists')
+        .select('symbol, name')
+        .eq('user_id', user.id);
+
+      if (error || !watchlist) return;
+
+      const stocksData: WatchlistStock[] = [];
+      
+      for (const item of watchlist) {
+        try {
+          const { data, error } = await supabase.functions.invoke('fetch-stock-data', {
+            body: { symbol: item.symbol }
+          });
+
+          if (!error && data && !data.error) {
+            stocksData.push({
+              symbol: data.symbol,
+              name: item.name || data.name || data.symbol,
+              price: `$${data.price}`,
+              change: data.isPositive ? `+${data.change}` : data.change,
+              changePercent: data.isPositive ? `+${data.changePercent}%` : `${data.changePercent}%`,
+              isPositive: data.isPositive
+            });
+          }
+        } catch (e) {
+          console.error(`Error fetching ${item.symbol}:`, e);
+        }
+      }
+
+      if (stocksData.length > 0) {
+        setWatchlistStocks(stocksData);
+        // Set the first stock as selected if current selection isn't in watchlist
+        if (!stocksData.find(s => s.symbol === selectedStock)) {
+          setSelectedStock(stocksData[0].symbol);
+        }
+      }
+    };
+
+    if (session) {
+      fetchWatchlist();
+    }
+  }, [session]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -118,7 +178,12 @@ const Index = () => {
           </div>
           
           <div className="space-y-4 sm:space-y-6">
-            <AIInsights selectedStock={selectedStock} marketData={marketData} />
+            <AIInsights 
+              selectedStock={selectedStock} 
+              onSelectStock={setSelectedStock}
+              watchlistStocks={watchlistStocks}
+              marketData={marketData} 
+            />
           </div>
         </div>
       </main>
