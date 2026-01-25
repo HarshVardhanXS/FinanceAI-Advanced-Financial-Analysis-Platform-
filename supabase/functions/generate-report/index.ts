@@ -44,15 +44,36 @@ serve(async (req) => {
   }
 
   try {
-    // Get client identifier
-    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claimsData.claims.sub as string;
     
-    // Check rate limit
-    const allowed = await checkRateLimit(clientIP);
+    // Use user ID for rate limiting
+    const allowed = await checkRateLimit(userId);
     if (!allowed) {
-      console.log('Rate limit exceeded for:', clientIP);
+      console.log('Rate limit exceeded for user:', userId);
       return new Response(
         JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
@@ -70,7 +91,7 @@ serve(async (req) => {
     }
     
     const { symbol, marketContext, includeMarketData } = validation.data;
-    console.log("Generating report for:", symbol);
+    console.log("Generating report for:", symbol, "by user:", userId);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
