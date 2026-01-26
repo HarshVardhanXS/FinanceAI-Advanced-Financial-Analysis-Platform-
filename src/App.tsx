@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Watermark from "@/components/Watermark";
+import { useTokenRefresh } from "@/hooks/useTokenRefresh";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
@@ -22,43 +23,51 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Component to handle token refresh at app level
+const TokenRefreshProvider = ({ children }: { children: React.ReactNode }) => {
+  useTokenRefresh();
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Watermark />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route
-            path="/*"
-            element={
-              <SidebarProvider>
-                <div className="flex min-h-screen w-full">
-                  <AppSidebar />
-                  <div className="flex-1">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/stocks" element={<StockBrowser />} />
-                      <Route path="/stocks/:symbol" element={<StockDetail />} />
-                      <Route path="/options" element={<OptionsTrading />} />
-                      <Route path="/portfolio" element={<PortfolioPage />} />
-                      <Route path="/watchlist" element={<WatchlistPage />} />
-                      <Route path="/analytics" element={<AnalyticsPage />} />
-                      <Route path="/alerts" element={<AlertsPage />} />
-                      <Route path="/ai" element={<AIAnalysis />} />
-                      <Route path="/ml-training" element={<MLTraining />} />
-                      <Route path="/admin" element={<Admin />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
+      <TokenRefreshProvider>
+        <Toaster />
+        <Sonner />
+        <Watermark />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/*"
+              element={
+                <SidebarProvider>
+                  <div className="flex min-h-screen w-full">
+                    <AppSidebar />
+                    <div className="flex-1">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/stocks" element={<StockBrowser />} />
+                        <Route path="/stocks/:symbol" element={<StockDetail />} />
+                        <Route path="/options" element={<OptionsTrading />} />
+                        <Route path="/portfolio" element={<PortfolioPage />} />
+                        <Route path="/watchlist" element={<WatchlistPage />} />
+                        <Route path="/analytics" element={<AnalyticsPage />} />
+                        <Route path="/alerts" element={<AlertsPage />} />
+                        <Route path="/ai" element={<AIAnalysis />} />
+                        <Route path="/ml-training" element={<MLTraining />} />
+                        <Route path="/admin" element={<Admin />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </div>
                   </div>
-                </div>
-              </SidebarProvider>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+                </SidebarProvider>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </TokenRefreshProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
