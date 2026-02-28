@@ -1,4 +1,4 @@
-import { Home, BarChart3, Wallet, Star, Shield, Bell, Search, TrendingUp, Bot, FlaskConical } from "lucide-react";
+import { Home, BarChart3, Wallet, Star, Shield, Bell, Search, TrendingUp, Bot, FlaskConical, FileText } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect } from "react";
 import {
@@ -24,6 +24,7 @@ const mainItems = [
   { title: "Watchlist", url: "/watchlist", icon: Star },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Alerts", url: "/alerts", icon: Bell },
+  { title: "Documentation", url: "/docs", icon: FileText },
 ];
 
 export function AppSidebar() {
