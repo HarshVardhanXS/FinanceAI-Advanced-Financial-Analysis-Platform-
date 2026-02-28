@@ -63,10 +63,12 @@ export const DashboardHeader = () => {
             <SidebarTrigger className="min-h-[44px] min-w-[44px]" />
             <img src={logo} alt="RV College of Engineering" className="h-10 sm:h-12 w-auto" />
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-3xl font-heading font-extrabold bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent drop-shadow-sm">
+              <h1 className="text-xl sm:text-3xl font-heading font-extrabold bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent drop-shadow-sm tracking-tight">
                 FinSight
               </h1>
-              <p className="text-sm font-semibold text-foreground/80 hidden lg:block tracking-wide">Minor Project Website</p>
+              <p className="text-[10px] sm:text-xs font-medium text-muted-foreground hidden lg:block tracking-widest uppercase">
+                Smart Market Intelligence
+              </p>
             </div>
           </div>
 
